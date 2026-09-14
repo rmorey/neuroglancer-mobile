@@ -1,0 +1,4 @@
+# Preserve byte-exact fixtures and historical release receipts on every platform.
+tests/fixtures/** -text
+evidence/** -text -whitespace
+patches/*.patch -text -whitespace

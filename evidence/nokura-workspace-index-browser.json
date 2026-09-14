@@ -1,0 +1,44 @@
+{
+  "startedAt": "2026-09-14T02:23:51.322Z",
+  "base": "https://c10s.pni.princeton.edu/web/neuroglancer-mobile/2026-09-13-v2/index.html",
+  "cases": [
+    {
+      "name": "state-json-import-export-and-rejected-input",
+      "passed": true
+    },
+    {
+      "name": "bookmarks-restore-complete-native-state",
+      "passed": true
+    },
+    {
+      "name": "share-link-reopens-native-state",
+      "passed": true
+    },
+    {
+      "name": "layer-opacity-order-visibility-remove-undo",
+      "passed": true
+    },
+    {
+      "name": "native-panels-and-command-palette",
+      "passed": true
+    },
+    {
+      "name": "native-state-editor-download",
+      "passed": true
+    },
+    {
+      "name": "native-screenshot-download",
+      "passed": true
+    },
+    {
+      "name": "home-preserves-imported-dimensions",
+      "passed": true
+    },
+    {
+      "name": "runtime-clean",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "finishedAt": "2026-09-14T02:24:02.884Z"
+}

@@ -1,0 +1,106 @@
+{
+  "dimensions": {
+    "x": [
+      8e-9,
+      "m"
+    ],
+    "y": [
+      8e-9,
+      "m"
+    ],
+    "z": [
+      4.5e-8,
+      "m"
+    ]
+  },
+  "position": [
+    16,
+    12,
+    8
+  ],
+  "crossSectionScale": 1,
+  "projectionScale": 512,
+  "layout": "4panel",
+  "layers": [
+    {
+      "type": "annotation",
+      "name": "Editable annotations",
+      "source": "local://annotations",
+      "annotations": [
+        {
+          "id": "point-1",
+          "type": "point",
+          "point": [
+            16,
+            12,
+            8
+          ],
+          "description": "Editable point"
+        },
+        {
+          "id": "line-1",
+          "type": "line",
+          "pointA": [
+            5,
+            5,
+            4
+          ],
+          "pointB": [
+            27,
+            19,
+            12
+          ]
+        },
+        {
+          "id": "box-1",
+          "type": "axis_aligned_bounding_box",
+          "pointA": [
+            7,
+            6,
+            4
+          ],
+          "pointB": [
+            25,
+            18,
+            12
+          ]
+        },
+        {
+          "id": "ellipsoid-1",
+          "type": "ellipsoid",
+          "center": [
+            16,
+            12,
+            8
+          ],
+          "radii": [
+            6,
+            5,
+            3
+          ]
+        },
+        {
+          "id": "polyline-1",
+          "type": "polyline",
+          "points": [
+            [
+              5,
+              6,
+              5
+            ],
+            [
+              16,
+              18,
+              8
+            ],
+            [
+              27,
+              6,
+              11
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

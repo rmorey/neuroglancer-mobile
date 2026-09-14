@@ -1,0 +1,14 @@
+{
+  "name": "neuroglancer-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.18" },
+  "scripts": {
+    "build": "node build.mjs",
+    "start": "node serve.mjs",
+    "test": "node tests/state.test.mjs",
+    "test:browser": "node tests/full-browser.mjs && node tests/annotation-editor.browser.mjs && node tests/workspace.browser.mjs && node tests/touch-keyboard.browser.mjs && node tests/volume-rendering.browser.mjs"
+  },
+  "devDependencies": { "playwright": "1.63.0" }
+}

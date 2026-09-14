@@ -87,8 +87,14 @@ export class StateEditorDialog extends Overlay {
     const blobUrl = URL.createObjectURL(blob);
     downloadLink.href = blobUrl;
     downloadLink.download = "state.json";
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
+    document.body.appendChild(downloadLink);
+    try {
+      downloadLink.click();
+    } finally {
+      downloadLink.remove();
+      // Let the browser begin the download before releasing the object URL.
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+    }
   }
 
   private applyChanges() {

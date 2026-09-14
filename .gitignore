@@ -1,0 +1,16 @@
+node_modules/
+vendor/neuroglancer/node_modules
+dist/
+release/
+/test-results/
+/playwright-report/
+/.env
+/.env.*
+!.env.example
+*.pem
+*.key
+.DS_Store
+
+# Session artifacts stay local. Qualified release evidence is added explicitly.
+/evidence/*
+!/evidence/*.md

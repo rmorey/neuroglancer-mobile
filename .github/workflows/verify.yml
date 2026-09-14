@@ -1,0 +1,61 @@
+name: Build and browser checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      RAYON_NUM_THREADS: '4'
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.23.2'
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            vendor/neuroglancer/package-lock.json
+      - name: Install upstream dependencies
+        working-directory: vendor/neuroglancer
+        run: npm ci --no-audit --no-fund
+      - name: Install test dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Install Chromium and its system libraries
+        run: npx playwright install --with-deps chromium
+      - name: Unit checks and production build
+        run: |
+          npm test
+          npm run build
+      - name: Browser checks
+        run: |
+          mkdir -p test-results
+          node serve.mjs > test-results/server.log 2>&1 &
+          viewer_server_pid=$!
+          trap 'kill "$viewer_server_pid" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:4174/index.html > /dev/null; then break; fi
+            sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:4174/index.html > /dev/null
+          npm run test:browser
+      - name: Save test evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: chromium-verification
+          path: test-results/
+          if-no-files-found: warn

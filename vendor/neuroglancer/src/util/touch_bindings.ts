@@ -174,6 +174,25 @@ export class TouchEventBinder<
   private tapEndTime = 0;
   private curTapNumTouches = 0;
 
+  private resetGesture() {
+    this.startHold.cancel();
+    this.prevTouches.clear();
+    this.prevEvent = undefined;
+    this.moved = false;
+    this.prevAngle = 0;
+    this.rotated = false;
+    this.prevDistance = 0;
+    this.pinched = false;
+    this.prevCenterX = 0;
+    this.prevCenterY = 0;
+    this.translated = false;
+    this.numPriorTaps = 0;
+    this.priorTapNumTouches = 0;
+    this.tapStartTime = 0;
+    this.tapEndTime = 0;
+    this.curTapNumTouches = 0;
+  }
+
   private handleTouchEvent(event: TouchEvent) {
     if (event.target === this.target) {
       event.preventDefault();
@@ -357,6 +376,9 @@ export class TouchEventBinder<
     });
     this.registerEventListener(target, "touchend", (event: TouchEvent) => {
       this.handleTouchEvent(event);
+    });
+    this.registerEventListener(target, "touchcancel", () => {
+      this.resetGesture();
     });
   }
 }

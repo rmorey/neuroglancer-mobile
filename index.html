@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#101817" />
+    <meta name="description" content="A touch-first workspace for Neuroglancer volumes, segmentation, annotations, and 3D views." />
+    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+    <title>Neuroglancer Mobile</title>
+  </head>
+  <body class="ng-mobile">
+    <svg class="m-svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <symbol id="m-i-layers" viewBox="0 0 24 24"><path d="m3 8 9-5 9 5-9 5zM3 12l9 5 9-5M3 16l9 5 9-5" /></symbol>
+        <symbol id="m-i-share" viewBox="0 0 24 24"><path d="M12 15V3m-4 4 4-4 4 4M6 11H4v10h16V11h-2" /></symbol>
+        <symbol id="m-i-settings" viewBox="0 0 24 24"><path d="M4 7h6m4 0h6M4 17h10m4 0h2" /><circle cx="12" cy="7" r="2" /><circle cx="16" cy="17" r="2" /></symbol>
+        <symbol id="m-i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M9.4 8.7A2.7 2.7 0 0 1 12 7c3.2 0 3.8 3.5 1.2 4.8-.9.5-1.2 1-1.2 2.2M12 17h.01" /></symbol>
+        <symbol id="m-i-workspace" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M3 9h18M15 9v11" /></symbol>
+        <symbol id="m-i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6" /></symbol>
+        <symbol id="m-i-plus" viewBox="0 0 24 24"><path d="M5 12h14M12 5v14" /></symbol>
+        <symbol id="m-i-minus" viewBox="0 0 24 24"><path d="M5 12h14" /></symbol>
+        <symbol id="m-i-fit" viewBox="0 0 24 24"><path d="M9 4H4v5m11-5h5v5M4 15v5h5m11-5v5h-5M9 9h6v6H9z" /></symbol>
+        <symbol id="m-i-home" viewBox="0 0 24 24"><path d="m4 11 8-7 8 7M6 9v11h12V9M10 20v-7h4v7" /></symbol>
+        <symbol id="m-i-orientation" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" /><path d="m15 9-2 4-4 2 2-4zM12 2v2M22 12h-2M12 22v-2M2 12h2" /></symbol>
+        <symbol id="m-i-left" viewBox="0 0 24 24"><path d="m14 6-6 6 6 6" /></symbol>
+        <symbol id="m-i-right" viewBox="0 0 24 24"><path d="m10 6 6 6-6 6" /></symbol>
+        <symbol id="m-i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7z" /></symbol>
+        <symbol id="m-i-pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14" /></symbol>
+        <symbol id="m-i-annotate" viewBox="0 0 24 24"><path d="m14 5 5 5M4 20l5-1L20 8a2 2 0 0 0-5-5L4 14zM3 21h18" /></symbol>
+        <symbol id="m-i-select" viewBox="0 0 24 24"><path d="m5 3 4 16 3-6 6-3zM15 15l5 5" /></symbol>
+        <symbol id="m-i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" /><path d="M12 2v5M22 12h-5M12 22v-5M2 12h5" /></symbol>
+        <symbol id="m-i-camera" viewBox="0 0 24 24"><path d="M8 6 9.5 3h5L16 6h5v14H3V6z" /><circle cx="12" cy="12" r="4" /></symbol>
+        <symbol id="m-i-refresh" viewBox="0 0 24 24"><path d="M20 8V3l-3 3A8 8 0 1 0 20 14M20 8h-5" /></symbol>
+      </defs>
+    </svg>
+
+    <div class="m-app">
+      <header class="m-header">
+        <div class="m-brand">
+          <svg class="m-icon m-brand-mark" aria-hidden="true"><use href="#m-i-layers" /></svg>
+          <div class="m-brand-copy"><div class="m-brand-title">Neuroglancer <span>Mobile</span></div><div class="m-brand-subtitle">MEC <span aria-hidden="true">·</span> volume workspace</div></div>
+        </div>
+        <nav class="m-header-actions" aria-label="Workspace actions">
+          <button id="layers-toggle" class="m-button m-primary-action" type="button" aria-label="Open layers" aria-controls="mobile-panel" aria-expanded="false" title="Layers"><svg class="m-icon" aria-hidden="true"><use href="#m-i-layers" /></svg><span class="m-action-label">Layers</span></button>
+          <button id="share" class="m-button m-icon-button" type="button" aria-label="Share this workspace" title="Share this workspace"><svg class="m-icon" aria-hidden="true"><use href="#m-i-share" /></svg></button>
+          <button id="workspace-toggle" class="m-button m-icon-button" type="button" aria-label="Open workspace settings and saved views" aria-controls="mobile-panel" aria-expanded="false" title="Workspace, saved views, and settings"><svg class="m-icon" aria-hidden="true"><use href="#m-i-settings" /></svg></button>
+          <button id="advanced-toggle" class="m-button m-icon-button" type="button" aria-label="Show the full Neuroglancer controls" aria-pressed="false" title="Full Neuroglancer controls"><svg class="m-icon" aria-hidden="true"><use href="#m-i-workspace" /></svg></button>
+          <button id="help-toggle" class="m-button m-icon-button" type="button" aria-label="Open help" aria-controls="mobile-panel" aria-expanded="false" title="Help"><svg class="m-icon" aria-hidden="true"><use href="#m-i-help" /></svg></button>
+        </nav>
+      </header>
+
+      <main class="m-view-area" aria-label="Volume workspace">
+        <div id="neuroglancer-container" aria-label="Neuroglancer volume viewer"></div>
+        <nav class="m-quicknav" aria-label="View navigation">
+          <button id="zoom-in" class="m-button m-icon-button" type="button" aria-label="Zoom in" title="Zoom in"><svg class="m-icon" aria-hidden="true"><use href="#m-i-plus" /></svg></button>
+          <button id="zoom-out" class="m-button m-icon-button" type="button" aria-label="Zoom out" title="Zoom out"><svg class="m-icon" aria-hidden="true"><use href="#m-i-minus" /></svg></button>
+          <span class="m-tool-divider" aria-hidden="true"></span>
+          <button id="fit" class="m-button m-icon-button" type="button" aria-label="Fit the volume" title="Fit the volume"><svg class="m-icon" aria-hidden="true"><use href="#m-i-fit" /></svg></button>
+          <button id="home" class="m-button m-icon-button" type="button" aria-label="Return to the starting view" title="Starting view"><svg class="m-icon" aria-hidden="true"><use href="#m-i-home" /></svg></button>
+          <button id="orientation-reset" class="m-button m-icon-button" type="button" aria-label="Reset view orientation" title="Reset orientation"><svg class="m-icon" aria-hidden="true"><use href="#m-i-orientation" /></svg></button>
+          <button id="screenshot" class="m-button m-icon-button" type="button" aria-label="Save a screenshot" title="Screenshot"><svg class="m-icon" aria-hidden="true"><use href="#m-i-camera" /></svg></button>
+        </nav>
+        <div id="active-tool-strip" class="m-active-tool-strip" role="toolbar" aria-label="Active annotation tool" hidden><span id="active-tool-label" role="status" aria-live="polite">Annotation tool</span><button id="tool-finish" class="m-button" type="button" aria-label="Finish annotation">Finish</button><button id="tool-undo" class="m-button" type="button" aria-label="Undo annotation step">Undo</button><button id="tool-cancel" class="m-button" type="button" aria-label="Cancel annotation tool">Cancel</button></div>
+        <div id="boot-status" class="m-boot-status" role="status" aria-live="polite"><span class="m-loading-dot" aria-hidden="true"></span>Opening your workspace…</div>
+        <section id="fatal-error" class="m-fatal-error" aria-labelledby="fatal-title" hidden><h1 id="fatal-title">The workspace couldn’t open</h1><p id="fatal-message">Check your connection, then try again.</p><button id="reload" class="m-button m-primary" type="button"><svg class="m-icon" aria-hidden="true"><use href="#m-i-refresh" /></svg>Reload viewer</button></section>
+      </main>
+
+      <footer class="m-bottom" aria-label="View and section controls">
+        <div class="m-bottom-inner">
+          <div class="m-layout-row">
+            <label class="m-compact-label" for="layout-select">View</label>
+            <select id="layout-select" class="m-field m-layout-select" aria-label="View layout"><option value="xy">XY</option><option value="xz">XZ</option><option value="yz">YZ</option><option value="3d">3D</option><option value="4panel">4 panels</option><option value="4panel-alt">4 panels · alternate</option><option value="xy-3d">XY + 3D</option><option value="xz-3d">XZ + 3D</option><option value="yz-3d">YZ + 3D</option></select>
+            <span class="m-row-spacer"></span>
+            <button id="select-toggle" class="m-button m-mode-button" type="button" aria-pressed="false" title="Select segments in the viewer"><svg class="m-icon" aria-hidden="true"><use href="#m-i-select" /></svg><span>Select</span></button>
+            <button id="annotations-toggle" class="m-button m-mode-button" type="button" aria-label="Open annotation tools" aria-controls="mobile-panel" aria-expanded="false" title="Annotation tools"><svg class="m-icon" aria-hidden="true"><use href="#m-i-annotate" /></svg><span>Annotate</span></button>
+          </div>
+
+          <div class="m-slice-row">
+            <div class="m-slice-position"><select id="axis-select" class="m-field m-axis-select" aria-label="Section axis"><option value="x">X</option><option value="y">Y</option><option value="z" selected>Z</option></select><input id="slice-number" class="m-field m-slice-number" type="number" inputmode="numeric" value="0" aria-label="Section number" /></div>
+            <button id="slice-prev" class="m-button m-icon-button m-step-button" type="button" aria-label="Previous section" title="Previous section"><svg class="m-icon" aria-hidden="true"><use href="#m-i-left" /></svg></button>
+            <button id="play" class="m-button m-icon-button m-play" type="button" aria-label="Play sections" aria-pressed="false" title="Play sections"><svg class="m-icon" aria-hidden="true"><use href="#m-i-play" /></svg></button>
+            <input id="slice-slider" class="m-slice-slider" type="range" min="0" max="0" value="0" aria-label="Navigate sections" />
+            <button id="slice-next" class="m-button m-icon-button m-step-button" type="button" aria-label="Next section" title="Next section"><svg class="m-icon" aria-hidden="true"><use href="#m-i-right" /></svg></button>
+            <label class="m-step-label" for="slice-step">Step</label><select id="slice-step" class="m-field m-step-select" aria-label="Section step"><option value="1">1</option><option value="10">10</option><option value="100">100</option></select>
+          </div>
+
+          <form id="coordinate-form" class="m-coordinate-form" aria-label="Jump to coordinates">
+            <label class="m-coordinate-field" for="coord-x"><span>X</span><input id="coord-x" class="m-field" type="number" inputmode="decimal" step="any" value="0" aria-label="X coordinate" /></label>
+            <label class="m-coordinate-field" for="coord-y"><span>Y</span><input id="coord-y" class="m-field" type="number" inputmode="decimal" step="any" value="0" aria-label="Y coordinate" /></label>
+            <label class="m-coordinate-field" for="coord-z"><span>Z</span><input id="coord-z" class="m-field" type="number" inputmode="decimal" step="any" value="0" aria-label="Z coordinate" /></label>
+            <button id="coordinate-jump" class="m-button m-icon-button" type="submit" aria-label="Jump to coordinates" title="Jump to coordinates"><svg class="m-icon" aria-hidden="true"><use href="#m-i-target" /></svg></button>
+          </form>
+        </div>
+      </footer>
+    </div>
+
+    <aside id="mobile-panel" class="m-panel" role="dialog" aria-labelledby="panel-title" aria-modal="false" hidden>
+      <div class="m-panel-header"><h2 id="panel-title">Workspace</h2><button id="panel-close" class="m-button m-icon-button" type="button" aria-label="Close panel" title="Close panel"><svg class="m-icon" aria-hidden="true"><use href="#m-i-close" /></svg></button></div>
+      <div id="panel-content" class="m-panel-content"></div>
+    </aside>
+    <div id="toast" class="m-toast" role="status" aria-live="polite" hidden></div>
+  </body>
+</html>

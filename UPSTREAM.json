@@ -1,0 +1,25 @@
+{
+  "repository": "https://github.com/google/neuroglancer",
+  "commit": "3598da303d5eb865564a2f1f5123220a33f87e25",
+  "version": "2.41.2",
+  "license": "Apache-2.0",
+  "profile": "default standalone browser; no datasource, kvstore, or layer exclusion conditions",
+  "sourceDirectory": "vendor/neuroglancer",
+  "upstreamModifications": [
+    {
+      "file": "src/ui/state_editor.ts",
+      "patch": "patches/0001-state-editor-download-cleanup.patch",
+      "reason": "Attach and safely remove the download link, then revoke its object URL."
+    },
+    {
+      "file": "src/ui/url_hash_binding.ts",
+      "patch": "patches/0002-url-state-rollback.patch",
+      "reason": "Parse before reset and restore the previous workspace if replacement, additive, or remote state restoration fails."
+    },
+    {
+      "file": "src/util/touch_bindings.ts",
+      "patch": "patches/0003-touch-cancel-reset.patch",
+      "reason": "Cancel pending holds and clear gesture and multi-tap state when the browser cancels a touch sequence."
+    }
+  ]
+}

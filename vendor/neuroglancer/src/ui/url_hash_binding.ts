@@ -115,6 +115,32 @@ export class UrlHashBinding extends RefCounted {
     }
   }
 
+  /** Applies validated state without discarding the workspace on a failed restore. */
+  private restoreState(state: unknown, reset: boolean) {
+    verifyObject(state);
+    const previous = JSON.stringify(
+      getCachedJson(this.root).value,
+      bigintToStringJsonReplacer,
+    );
+    try {
+      if (reset) this.root.reset();
+      this.root.restoreState(state);
+    } catch (error) {
+      try {
+        this.root.reset();
+        this.root.restoreState(
+          previous === undefined ? undefined : JSON.parse(previous),
+        );
+      } catch (rollbackError) {
+        throw new AggregateError(
+          [error, rollbackError],
+          "Unable to load the requested state or restore the previous state.",
+        );
+      }
+      throw error;
+    }
+  }
+
   /**
    * Sets the current state to match the URL hash.  If it is desired to initialize the state based
    * on the URL hash, then this should be called immediately after construction.
@@ -133,9 +159,7 @@ export class UrlHashBinding extends RefCounted {
             .read(url, { throwIfMissing: true })
             .then((response) => response.response.json())
             .then((json) => {
-              verifyObject(json);
-              this.root.reset();
-              this.root.restoreState(json);
+              this.restoreState(json, true);
             }),
           {
             initialMessage: `Loading state from ${url}`,
@@ -147,8 +171,7 @@ export class UrlHashBinding extends RefCounted {
         // Firefox always %-encodes the URL even if it is not typed that way.
         s = decodeURIComponent(s);
         const state = urlSafeParse(s);
-        verifyObject(state);
-        this.root.restoreState(state);
+        this.restoreState(state, false);
         this.prevStateString = undefined;
       } else if (s.startsWith("#!")) {
         s = s.slice(2);
@@ -156,11 +179,9 @@ export class UrlHashBinding extends RefCounted {
         if (s === this.prevStateString) {
           return;
         }
-        this.prevStateString = s;
-        this.root.reset();
         const state = urlSafeParse(s);
-        verifyObject(state);
-        this.root.restoreState(state);
+        this.restoreState(state, true);
+        this.prevStateString = s;
       } else {
         throw new Error(
           `URL hash is expected to be of the form "#!{...}" or "#!+{...}".`,

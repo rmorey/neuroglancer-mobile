@@ -1,0 +1,63 @@
+{
+  "@type": "neuroglancer_annotations_v1",
+  "dimensions": {
+    "x": [
+      8e-9,
+      "m"
+    ],
+    "y": [
+      8e-9,
+      "m"
+    ],
+    "z": [
+      4.5e-8,
+      "m"
+    ]
+  },
+  "lower_bound": [
+    0,
+    0,
+    0
+  ],
+  "upper_bound": [
+    32,
+    24,
+    16
+  ],
+  "annotation_type": "POINT",
+  "properties": [
+    {
+      "id": "confidence",
+      "type": "float32"
+    },
+    {
+      "id": "color",
+      "type": "rgba"
+    }
+  ],
+  "relationships": [
+    {
+      "id": "segments",
+      "key": "by-segment"
+    }
+  ],
+  "by_id": {
+    "key": "by-id"
+  },
+  "spatial": [
+    {
+      "key": "spatial0",
+      "grid_shape": [
+        1,
+        1,
+        1
+      ],
+      "chunk_size": [
+        32,
+        24,
+        16
+      ],
+      "limit": 10
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+Neuroglancer Mobile
+Copyright 2026 Ryan Morey and contributors.
+
+This project includes Neuroglancer, Copyright Google Inc./Google LLC and
+contributors, licensed under the Apache License, Version 2.0.
+Upstream: https://github.com/google/neuroglancer
+Pinned commit: 3598da303d5eb865564a2f1f5123220a33f87e25
+
+Original copyright and license notices remain in vendor/neuroglancer.
+That directory also contains third-party components with their own notices.
+Local upstream modifications are recorded in UPSTREAM.json and patches/.
+This project is not an official Google release.

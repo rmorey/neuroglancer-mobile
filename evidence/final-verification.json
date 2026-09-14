@@ -1,0 +1,35 @@
+{
+  "verifiedAt": "2026-09-14T02:26:42.291Z",
+  "url": "https://c10s.pni.princeton.edu/web/neuroglancer-mobile/2026-09-13-v2/index.html",
+  "browserChecksPassed": 60,
+  "publicObjectsVerified": 145,
+  "reports": [
+    {
+      "file": "full-nokura-browser-report.json",
+      "passed": 31,
+      "errors": 0
+    },
+    {
+      "file": "nokura-annotation-editor-browser.json",
+      "passed": 8,
+      "errors": 0
+    },
+    {
+      "file": "nokura-workspace-index-browser.json",
+      "passed": 9,
+      "errors": 0
+    },
+    {
+      "file": "nokura-touch-keyboard-browser-report.json",
+      "passed": 6,
+      "errors": 0
+    },
+    {
+      "file": "nokura-volume-rendering-browser.json",
+      "passed": 6,
+      "errors": 0
+    }
+  ],
+  "physicalDevicesTested": false,
+  "webkitTested": false
+}

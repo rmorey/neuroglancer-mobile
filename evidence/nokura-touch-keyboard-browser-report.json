@@ -1,0 +1,400 @@
+{
+  "startedAt": "2026-09-14T02:24:14.615Z",
+  "baseURL": "https://c10s.pni.princeton.edu/web/neuroglancer-mobile/2026-09-13-v2/index.html",
+  "fixtureBase": null,
+  "evidenceTag": "nokura-touch-keyboard",
+  "browser": "153.0.8010.12",
+  "cases": [
+    {
+      "name": "native-axes-and-zoom-via-ui",
+      "passed": true,
+      "elapsedMs": 1121,
+      "details": {
+        "before": {
+          "axes": true,
+          "zoom": 8
+        },
+        "after": {
+          "axes": false,
+          "zoom": 4
+        }
+      }
+    },
+    {
+      "name": "modifier-capture-excludes-editable-fields",
+      "passed": true,
+      "elapsedMs": 481,
+      "details": {
+        "control": {
+          "ctrl": true,
+          "alt": true,
+          "shift": true
+        },
+        "editable": {
+          "ctrl": false,
+          "alt": false,
+          "shift": false
+        }
+      }
+    },
+    {
+      "name": "explicit-native-right-click",
+      "passed": true,
+      "elapsedMs": 496,
+      "details": {
+        "button": 2,
+        "x": 195,
+        "y": 361,
+        "ctrl": true
+      }
+    },
+    {
+      "name": "clear-and-close-release-modifiers",
+      "passed": true,
+      "elapsedMs": 305,
+      "details": {
+        "open": false,
+        "modifiers": {
+          "ctrl": false,
+          "alt": false,
+          "shift": false
+        },
+        "target": "DIV",
+        "hasViewerPoint": false
+      }
+    },
+    {
+      "name": "phone-and-landscape-bounds",
+      "passed": true,
+      "elapsedMs": 594,
+      "details": [
+        {
+          "viewport": {
+            "width": 360,
+            "height": 640
+          },
+          "documentWidth": 360,
+          "rect": {
+            "x": 10,
+            "y": 145,
+            "width": 340,
+            "height": 297,
+            "right": 350,
+            "bottom": 442
+          },
+          "clientWidth": 338,
+          "scrollWidth": 338,
+          "targets": [
+            {
+              "name": "Toggle Ctrl modifier",
+              "width": 44,
+              "height": 44
+            },
+            {
+              "name": "Toggle Alt modifier",
+              "width": 44,
+              "height": 44
+            },
+            {
+              "name": "Toggle Shift modifier",
+              "width": 47.28125,
+              "height": 44
+            },
+            {
+              "name": "Clear keyboard modifiers",
+              "width": 51.390625,
+              "height": 44
+            },
+            {
+              "name": "Close native keyboard",
+              "width": 44,
+              "height": 44
+            },
+            {
+              "name": "Send Escape",
+              "width": 76.25,
+              "height": 44
+            },
+            {
+              "name": "Send Tab",
+              "width": 76.25,
+              "height": 44
+            },
+            {
+              "name": "Send Enter",
+              "width": 76.25,
+              "height": 44
+            },
+            {
+              "name": "Send Backspace",
+              "width": 76.25,
+              "height": 44
+            },
+            {
+              "name": "Send ArrowLeft",
+              "width": 76.25,
+              "height": 44
+            },
+            {
+              "name": "Send ArrowUp",
+              "width": 76.25,
+              "height": 44
+            },
+            {
+              "name": "Send ArrowDown",
+              "width": 76.25,
+              "height": 44
+            },
+            {
+              "name": "Send ArrowRight",
+              "width": 76.25,
+              "height": 44
+            },
+            {
+              "name": "Native key code",
+              "width": 239.953125,
+              "height": 44
+            },
+            {
+              "name": "Send key",
+              "width": 75.046875,
+              "height": 44
+            },
+            {
+              "name": "Primary click at the last viewer point",
+              "width": 157.5,
+              "height": 44
+            },
+            {
+              "name": "Right click at the last viewer point",
+              "width": 157.5,
+              "height": 44
+            }
+          ]
+        },
+        {
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "documentWidth": 390,
+          "rect": {
+            "x": 10,
+            "y": 349,
+            "width": 370,
+            "height": 297,
+            "right": 380,
+            "bottom": 646
+          },
+          "clientWidth": 368,
+          "scrollWidth": 368,
+          "targets": [
+            {
+              "name": "Toggle Ctrl modifier",
+              "width": 44,
+              "height": 44
+            },
+            {
+              "name": "Toggle Alt modifier",
+              "width": 44,
+              "height": 44
+            },
+            {
+              "name": "Toggle Shift modifier",
+              "width": 47.28125,
+              "height": 44
+            },
+            {
+              "name": "Clear keyboard modifiers",
+              "width": 51.390625,
+              "height": 44
+            },
+            {
+              "name": "Close native keyboard",
+              "width": 44,
+              "height": 44
+            },
+            {
+              "name": "Send Escape",
+              "width": 83.75,
+              "height": 44
+            },
+            {
+              "name": "Send Tab",
+              "width": 83.75,
+              "height": 44
+            },
+            {
+              "name": "Send Enter",
+              "width": 83.75,
+              "height": 44
+            },
+            {
+              "name": "Send Backspace",
+              "width": 83.75,
+              "height": 44
+            },
+            {
+              "name": "Send ArrowLeft",
+              "width": 83.75,
+              "height": 44
+            },
+            {
+              "name": "Send ArrowUp",
+              "width": 83.75,
+              "height": 44
+            },
+            {
+              "name": "Send ArrowDown",
+              "width": 83.75,
+              "height": 44
+            },
+            {
+              "name": "Send ArrowRight",
+              "width": 83.75,
+              "height": 44
+            },
+            {
+              "name": "Native key code",
+              "width": 269.953125,
+              "height": 44
+            },
+            {
+              "name": "Send key",
+              "width": 75.046875,
+              "height": 44
+            },
+            {
+              "name": "Primary click at the last viewer point",
+              "width": 172.5,
+              "height": 44
+            },
+            {
+              "name": "Right click at the last viewer point",
+              "width": 172.5,
+              "height": 44
+            }
+          ]
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "documentWidth": 844,
+          "rect": {
+            "x": 162,
+            "y": 63,
+            "width": 520,
+            "height": 222,
+            "right": 682,
+            "bottom": 285
+          },
+          "clientWidth": 518,
+          "scrollWidth": 518,
+          "targets": [
+            {
+              "name": "Toggle Ctrl modifier",
+              "width": 44,
+              "height": 44
+            },
+            {
+              "name": "Toggle Alt modifier",
+              "width": 44,
+              "height": 44
+            },
+            {
+              "name": "Toggle Shift modifier",
+              "width": 47.28125,
+              "height": 44
+            },
+            {
+              "name": "Clear keyboard modifiers",
+              "width": 51.390625,
+              "height": 44
+            },
+            {
+              "name": "Close native keyboard",
+              "width": 44,
+              "height": 44
+            },
+            {
+              "name": "Send Escape",
+              "width": 121.25,
+              "height": 44
+            },
+            {
+              "name": "Send Tab",
+              "width": 121.25,
+              "height": 44
+            },
+            {
+              "name": "Send Enter",
+              "width": 121.25,
+              "height": 44
+            },
+            {
+              "name": "Send Backspace",
+              "width": 121.25,
+              "height": 44
+            },
+            {
+              "name": "Send ArrowLeft",
+              "width": 121.25,
+              "height": 44
+            },
+            {
+              "name": "Send ArrowUp",
+              "width": 121.25,
+              "height": 44
+            },
+            {
+              "name": "Send ArrowDown",
+              "width": 121.25,
+              "height": 44
+            },
+            {
+              "name": "Send ArrowRight",
+              "width": 121.25,
+              "height": 44
+            },
+            {
+              "name": "Native key code",
+              "width": 419.953125,
+              "height": 44
+            },
+            {
+              "name": "Send key",
+              "width": 75.046875,
+              "height": 44
+            },
+            {
+              "name": "Primary click at the last viewer point",
+              "width": 247.5,
+              "height": 44
+            },
+            {
+              "name": "Right click at the last viewer point",
+              "width": 247.5,
+              "height": 44
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "no-page-errors",
+      "passed": true,
+      "elapsedMs": 1,
+      "details": {
+        "errors": 0
+      }
+    }
+  ],
+  "errors": [],
+  "limitations": [
+    "Chromium with touch emulation and software WebGL. Physical iOS and Android not tested."
+  ],
+  "finishedAt": "2026-09-14T02:24:22.562Z",
+  "passed": true
+}

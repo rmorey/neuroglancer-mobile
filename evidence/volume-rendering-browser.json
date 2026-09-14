@@ -1,0 +1,482 @@
+{
+  "checkedAt": "2026-09-14T02:20:16.599Z",
+  "url": "http://127.0.0.1:4174",
+  "upstreamPin": "3598da303d5eb865564a2f1f5123220a33f87e25",
+  "fixture": "raw-uint8",
+  "shape": [
+    32,
+    24,
+    16
+  ],
+  "checks": [
+    {
+      "name": "Ray-marched raw uint8 volume is visible with slice planes and annotation bounds disabled",
+      "pass": true,
+      "details": {
+        "native": {
+          "state": {
+            "dimensions": {
+              "x": [
+                8e-9,
+                "m"
+              ],
+              "y": [
+                8e-9,
+                "m"
+              ],
+              "z": [
+                4.5e-8,
+                "m"
+              ]
+            },
+            "position": [
+              16,
+              12,
+              8
+            ],
+            "crossSectionScale": 0.1,
+            "projectionOrientation": [
+              0.1831149011850357,
+              0.1831149011850357,
+              0.0490654893219471,
+              0.9646400809288025
+            ],
+            "projectionScale": 100,
+            "layers": [
+              {
+                "type": "image",
+                "source": "precomputed://http://127.0.0.1:4174/fixtures/raw-uint8",
+                "tab": "source",
+                "shader": "void main() { float value = toNormalized(getDataValue()); emitRGBA(vec4(1.0 * value, 0.0 * value, 0.0 * value, 0.1000 * value)); }",
+                "volumeRendering": "on",
+                "volumeRenderingDepthSamples": 256,
+                "name": "Volume fixture"
+              }
+            ],
+            "showAxisLines": false,
+            "showScaleBar": false,
+            "showDefaultAnnotations": false,
+            "showSlices": false,
+            "layout": "3d"
+          },
+          "layers": [
+            "vO",
+            "vq",
+            "",
+            "fc"
+          ],
+          "panels": [
+            {
+              "slice": false
+            }
+          ]
+        },
+        "red": {
+          "panel": {
+            "x": 0,
+            "y": 66,
+            "width": 430,
+            "height": 678,
+            "slice": false
+          },
+          "rgbMean": [
+            79.66114807128906,
+            0.7509002685546875,
+            0.599212646484375
+          ],
+          "redPixels": 36108,
+          "greenPixels": 0,
+          "nonBlack": 37720,
+          "hash": "ade23135"
+        },
+        "chunks": [
+          {
+            "url": "http://127.0.0.1:4174/fixtures/raw-uint8/8_8_45/16-32_12-24_8-16",
+            "status": 200
+          },
+          {
+            "url": "http://127.0.0.1:4174/fixtures/raw-uint8/8_8_45/16-32_12-24_0-8",
+            "status": 200
+          },
+          {
+            "url": "http://127.0.0.1:4174/fixtures/raw-uint8/8_8_45/16-32_0-12_8-16",
+            "status": 200
+          },
+          {
+            "url": "http://127.0.0.1:4174/fixtures/raw-uint8/8_8_45/16-32_0-12_0-8",
+            "status": 200
+          },
+          {
+            "url": "http://127.0.0.1:4174/fixtures/raw-uint8/8_8_45/0-16_12-24_8-16",
+            "status": 200
+          },
+          {
+            "url": "http://127.0.0.1:4174/fixtures/raw-uint8/8_8_45/0-16_12-24_0-8",
+            "status": 200
+          },
+          {
+            "url": "http://127.0.0.1:4174/fixtures/raw-uint8/8_8_45/0-16_0-12_8-16",
+            "status": 200
+          },
+          {
+            "url": "http://127.0.0.1:4174/fixtures/raw-uint8/8_8_45/0-16_0-12_0-8",
+            "status": 200
+          }
+        ]
+      }
+    },
+    {
+      "name": "Native shader color changes visible volume pixels",
+      "pass": true,
+      "details": {
+        "red": {
+          "panel": {
+            "x": 0,
+            "y": 66,
+            "width": 430,
+            "height": 678,
+            "slice": false
+          },
+          "rgbMean": [
+            79.66114807128906,
+            0.7509002685546875,
+            0.599212646484375
+          ],
+          "redPixels": 36108,
+          "greenPixels": 0,
+          "nonBlack": 37720,
+          "hash": "ade23135"
+        },
+        "green": {
+          "panel": {
+            "x": 0,
+            "y": 66,
+            "width": 430,
+            "height": 678,
+            "slice": false
+          },
+          "rgbMean": [
+            0.4717559814453125,
+            79.94003295898438,
+            0.599212646484375
+          ],
+          "redPixels": 0,
+          "greenPixels": 36786,
+          "nonBlack": 37720,
+          "hash": "4d4b0310"
+        }
+      }
+    },
+    {
+      "name": "Zero shader alpha makes the volume transparent",
+      "pass": true,
+      "details": {
+        "green": {
+          "panel": {
+            "x": 0,
+            "y": 66,
+            "width": 430,
+            "height": 678,
+            "slice": false
+          },
+          "rgbMean": [
+            0.4717559814453125,
+            79.94003295898438,
+            0.599212646484375
+          ],
+          "redPixels": 0,
+          "greenPixels": 36786,
+          "nonBlack": 37720,
+          "hash": "4d4b0310"
+        },
+        "transparent": {
+          "panel": {
+            "x": 0,
+            "y": 66,
+            "width": 430,
+            "height": 678,
+            "slice": false
+          },
+          "rgbMean": [
+            0.4717559814453125,
+            0.7509002685546875,
+            0.599212646484375
+          ],
+          "redPixels": 0,
+          "greenPixels": 0,
+          "nonBlack": 1680,
+          "hash": "f82518a1"
+        }
+      }
+    },
+    {
+      "name": "Native volume gain changes opacity independently of slice opacity",
+      "pass": true,
+      "details": {
+        "green": {
+          "panel": {
+            "x": 0,
+            "y": 66,
+            "width": 430,
+            "height": 678,
+            "slice": false
+          },
+          "rgbMean": [
+            0.4717559814453125,
+            79.94003295898438,
+            0.599212646484375
+          ],
+          "redPixels": 0,
+          "greenPixels": 36786,
+          "nonBlack": 37720,
+          "hash": "4d4b0310"
+        },
+        "lowGain": {
+          "panel": {
+            "x": 0,
+            "y": 66,
+            "width": 430,
+            "height": 678,
+            "slice": false
+          },
+          "rgbMean": [
+            0.4717559814453125,
+            14.129745483398438,
+            0.599212646484375
+          ],
+          "redPixels": 0,
+          "greenPixels": 22053,
+          "nonBlack": 23700,
+          "hash": "ab0fa399"
+        },
+        "transparent": {
+          "panel": {
+            "x": 0,
+            "y": 66,
+            "width": 430,
+            "height": 678,
+            "slice": false
+          },
+          "rgbMean": [
+            0.4717559814453125,
+            0.7509002685546875,
+            0.599212646484375
+          ],
+          "redPixels": 0,
+          "greenPixels": 0,
+          "nonBlack": 1680,
+          "hash": "f82518a1"
+        }
+      }
+    },
+    {
+      "name": "One-finger touch drag rotates the native 3D camera and rendered volume",
+      "pass": true,
+      "details": {
+        "before3D": [
+          0.1831149011850357,
+          0.1831149011850357,
+          0.0490654893219471,
+          0.9646400809288025
+        ],
+        "after3D": [
+          0.08784299343824387,
+          0.34232786297798157,
+          0.09759120643138885,
+          0.9303607940673828
+        ],
+        "rotated": {
+          "panel": {
+            "x": 0,
+            "y": 66,
+            "width": 430,
+            "height": 678,
+            "slice": false
+          },
+          "rgbMean": [
+            69.13191223144531,
+            0.7509002685546875,
+            0.599212646484375
+          ],
+          "redPixels": 24530,
+          "greenPixels": 0,
+          "nonBlack": 26117,
+          "hash": "750046cd"
+        }
+      }
+    },
+    {
+      "name": "Two-finger touch rotation changes orientation within an oblique native cross-section",
+      "pass": true,
+      "details": {
+        "before2D": [
+          0.258819043636322,
+          0,
+          0,
+          0.9659258127212524
+        ],
+        "after2D": [
+          0.2241438925266266,
+          0.1294095516204834,
+          -0.4829629361629486,
+          0.836516261100769
+        ]
+      }
+    }
+  ],
+  "errors": [],
+  "console": [
+    {
+      "type": "warning",
+      "text": "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback."
+    },
+    {
+      "type": "warning",
+      "text": "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback."
+    },
+    {
+      "type": "warning",
+      "text": "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback."
+    },
+    {
+      "type": "warning",
+      "text": "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback."
+    },
+    {
+      "type": "warning",
+      "text": "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback."
+    },
+    {
+      "type": "warning",
+      "text": "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback."
+    },
+    {
+      "type": "warning",
+      "text": "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback."
+    },
+    {
+      "type": "warning",
+      "text": "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback."
+    },
+    {
+      "type": "warning",
+      "text": "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback."
+    },
+    {
+      "type": "warning",
+      "text": "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback."
+    },
+    {
+      "type": "warning",
+      "text": "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback."
+    },
+    {
+      "type": "warning",
+      "text": "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback."
+    },
+    {
+      "type": "warning",
+      "text": "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback."
+    },
+    {
+      "type": "warning",
+      "text": "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback."
+    },
+    {
+      "type": "warning",
+      "text": "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback."
+    },
+    {
+      "type": "warning",
+      "text": "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback."
+    },
+    {
+      "type": "warning",
+      "text": "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback."
+    },
+    {
+      "type": "warning",
+      "text": "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback."
+    },
+    {
+      "type": "warning",
+      "text": "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback."
+    },
+    {
+      "type": "warning",
+      "text": "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback."
+    },
+    {
+      "type": "warning",
+      "text": "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback."
+    },
+    {
+      "type": "warning",
+      "text": "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback."
+    },
+    {
+      "type": "warning",
+      "text": "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback."
+    },
+    {
+      "type": "warning",
+      "text": "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback."
+    }
+  ],
+  "responses": [
+    {
+      "url": "http://127.0.0.1:4174/fixtures/raw-uint8/info",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/fixtures/raw-uint8/8_8_45/16-32_12-24_8-16",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/fixtures/raw-uint8/8_8_45/16-32_12-24_0-8",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/fixtures/raw-uint8/8_8_45/16-32_0-12_8-16",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/fixtures/raw-uint8/8_8_45/16-32_0-12_0-8",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/fixtures/raw-uint8/8_8_45/0-16_12-24_8-16",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/fixtures/raw-uint8/8_8_45/0-16_12-24_0-8",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/fixtures/raw-uint8/8_8_45/0-16_0-12_8-16",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/fixtures/raw-uint8/8_8_45/0-16_0-12_0-8",
+      "status": 200
+    }
+  ],
+  "semantics": "Native slice opacity is separate from volume opacity. Volume opacity uses shader alpha and volumeRenderingGain.",
+  "limitations": [
+    "Chromium mobile emulation with software WebGL; physical phones and native iOS Safari remain untested."
+  ],
+  "browser": "153.0.8010.12",
+  "buildVersion": {
+    "version": "1.0.0",
+    "builtAt": "2026-09-14T02:13:03.438Z",
+    "upstream": "3598da303d5eb865564a2f1f5123220a33f87e25"
+  },
+  "finishedAt": "2026-09-14T02:20:26.578Z",
+  "scriptAssets": [
+    "http://127.0.0.1:4174/193.8d6bc4fcee10e8e8.js",
+    "http://127.0.0.1:4174/25.376419e4e46f39db.js",
+    "http://127.0.0.1:4174/720.b90a360343dae4f3.js",
+    "http://127.0.0.1:4174/789.d1f53e7ad5a09b29.js",
+    "http://127.0.0.1:4174/main.78f5800ededdb4ba.js"
+  ]
+}
