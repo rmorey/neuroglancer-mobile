@@ -1,60 +1,72 @@
 --- a/src/ui/url_hash_binding.ts
 +++ b/src/ui/url_hash_binding.ts
-@@ -115,6 +115,32 @@
-     }
-   }
+@@ -54,6 +54,39 @@
+   upgradeState?: (state: any) => any;
+ }
  
-+  /** Applies validated state without discarding the workspace on a failed restore. */
-+  private restoreState(state: unknown, reset: boolean) {
-+    verifyObject(state);
-+    const previous = JSON.stringify(
-+      getCachedJson(this.root).value,
-+      bigintToStringJsonReplacer,
-+    );
++/** Validate and upgrade before mutation, restoring the workspace on failure. */
++export function restoreStateWithRollback(
++  root: Trackable,
++  state: unknown,
++  reset: boolean,
++  upgradeState: (state: any) => any = (state) => state,
++) {
++  verifyObject(state);
++  const upgradedState = upgradeState(state);
++  verifyObject(upgradedState);
++  const previous = JSON.stringify(
++    getCachedJson(root).value,
++    bigintToStringJsonReplacer,
++  );
++  try {
++    if (reset) root.reset();
++    root.restoreState(upgradedState);
++  } catch (error) {
 +    try {
-+      if (reset) this.root.reset();
-+      this.root.restoreState(state);
-+    } catch (error) {
-+      try {
-+        this.root.reset();
-+        this.root.restoreState(
-+          previous === undefined ? undefined : JSON.parse(previous),
-+        );
-+      } catch (rollbackError) {
-+        throw new AggregateError(
-+          [error, rollbackError],
-+          "Unable to load the requested state or restore the previous state.",
-+        );
-+      }
-+      throw error;
++      root.reset();
++      root.restoreState(
++        previous === undefined ? undefined : JSON.parse(previous),
++      );
++    } catch (rollbackError) {
++      throw new AggregateError(
++        [error, rollbackError],
++        "Unable to load the requested state or restore the previous state.",
++      );
 +    }
++    throw error;
 +  }
++}
 +
-   /**
-    * Sets the current state to match the URL hash.  If it is desired to initialize the state based
-    * on the URL hash, then this should be called immediately after construction.
-@@ -133,9 +159,7 @@
+ /**
+  * An instance of this class manages a binding between a Trackable value and the URL hash state.
+  * The binding is initialized in the constructor, and is removed when dispose is called.
+@@ -140,9 +173,12 @@
              .read(url, { throwIfMissing: true })
              .then((response) => response.response.json())
              .then((json) => {
 -              verifyObject(json);
 -              this.root.reset();
--              this.root.restoreState(json);
-+              this.restoreState(json, true);
+-              this.root.restoreState(this.upgradeState(json));
++              restoreStateWithRollback(
++                this.root,
++                json,
++                true,
++                this.upgradeState,
++              );
              }),
            {
              initialMessage: `Loading state from ${url}`,
-@@ -147,8 +171,7 @@
+@@ -154,8 +190,7 @@
          // Firefox always %-encodes the URL even if it is not typed that way.
          s = decodeURIComponent(s);
          const state = urlSafeParse(s);
 -        verifyObject(state);
--        this.root.restoreState(state);
-+        this.restoreState(state, false);
+-        this.root.restoreState(this.upgradeState(state));
++        restoreStateWithRollback(this.root, state, false, this.upgradeState);
          this.prevStateString = undefined;
        } else if (s.startsWith("#!")) {
          s = s.slice(2);
-@@ -156,11 +179,9 @@
+@@ -163,11 +198,9 @@
          if (s === this.prevStateString) {
            return;
          }
@@ -62,8 +74,8 @@
 -        this.root.reset();
          const state = urlSafeParse(s);
 -        verifyObject(state);
--        this.root.restoreState(state);
-+        this.restoreState(state, true);
+-        this.root.restoreState(this.upgradeState(state));
++        restoreStateWithRollback(this.root, state, true, this.upgradeState);
 +        this.prevStateString = s;
        } else {
          throw new Error(

@@ -28,6 +28,8 @@ import "codemirror/addon/lint/lint.css";
 import CodeMirror from "codemirror";
 import { debounce } from "lodash-es";
 import { Overlay } from "#src/overlay.js";
+import { StatusMessage } from "#src/status.js";
+import { restoreStateWithRollback } from "#src/ui/url_hash_binding.js";
 import "#src/ui/state_editor.css";
 
 import { bigintToStringJsonReplacer } from "#src/util/json.js";
@@ -99,8 +101,18 @@ export class StateEditorDialog extends Overlay {
 
   private applyChanges() {
     if (this.parsedValue !== null) {
-      this.viewer.state.reset();
-      this.viewer.state.restoreState(this.parsedValue);
+      try {
+        restoreStateWithRollback(
+          this.viewer.state,
+          this.parsedValue,
+          true,
+          this.viewer.stateUpgrader,
+        );
+      } catch (error) {
+        const status = new StatusMessage();
+        status.setErrorMessage(`Unable to apply state: ${error}`);
+        return;
+      }
     }
     this.applyButton.disabled = true;
   }

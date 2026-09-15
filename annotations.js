@@ -68,7 +68,7 @@ function annotationPosition(mouseState, annotationLayer) {
   return point;
 }
 
-export function createAnnotationController(viewer, { notify = () => {}, onChange = () => {} } = {}) {
+export function createAnnotationController(viewer, { notify = () => {}, onChange = () => {}, onActivate = () => {} } = {}) {
   let mode = 'inspect', disposed = false, operation = 0, container, managed, selectedId, moveTarget;
   let root, layerSelect, list, form, status, toolButtons, undoButton, redoButton, finishButton;
   let ownedTool, ownedLayer, renderScheduled = false;
@@ -183,6 +183,7 @@ export function createAnnotationController(viewer, { notify = () => {}, onChange
 
   async function setTool(nextMode) {
     if (!(nextMode in MODES)) throw new Error(`Unknown annotation tool: ${nextMode}`);
+    onActivate(nextMode);
     operation++; const generation = operation;
     cancelTool(); mode = nextMode; scheduleRender();
     if (TOOL_IDS[nextMode]) {

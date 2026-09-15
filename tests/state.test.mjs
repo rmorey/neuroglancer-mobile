@@ -13,7 +13,9 @@ test('coordinate inputs reject blank and nonfinite values', () => {
 test('state validation preserves upstream extensions and multidimensional layouts', () => {
   const state = { position: [1, 2, 3, 4], layers: [], layout: { type: 'row', children: [] }, arbitraryUpstreamProperty: { enabled: true } };
   assert.equal(validateState(state), state);
-  for (const value of [[], null, { layers: {} }, { position: [NaN] }]) assert.throws(() => validateState(value));
+  const legacy = { layers: { cells: { type: 'segmentation', timestamp: 1690000000000, timestampOwner: ['cells'] } } };
+  assert.equal(validateState(legacy), legacy);
+  for (const value of [[], null, { layers: null }, { layers: 'bad' }, { position: [NaN] }]) assert.throws(() => validateState(value));
 });
 test('original prototype URLs convert physical XY and scale into native canonical voxels', () => {
   const state = legacyState('#source=precomputed%3A%2F%2Fhttps%3A%2F%2Fexample.org%2Fdata&x=2097152&y=1572864&z=5000&nm=128');

@@ -72,5 +72,5 @@ try {
     await page.locator('#fit').tap(); assert.equal((await current()).position.length, 4); assert.equal((await current()).position[3], 5);
   });
   await test('runtime-clean', async () => assert.deepEqual(report.errors, []));
-} finally { report.finishedAt = new Date().toISOString(); await writeFile(`${evidence}/${process.env.EVIDENCE_TAG || 'workspace'}-browser.json`, JSON.stringify(report, null, 2)); await browser.close(); }
+} finally { report.finishedAt = new Date().toISOString(); await writeFile(`${evidence}/${process.env.EVIDENCE_TAG ? `${process.env.EVIDENCE_TAG}-workspace` : 'workspace'}-browser.json`, JSON.stringify(report, null, 2)); await browser.close(); }
 if (report.cases.some(c => !c.passed)) process.exitCode = 1;

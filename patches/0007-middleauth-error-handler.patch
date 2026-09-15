@@ -1,0 +1,49 @@
+--- a/src/credentials_provider/oauth2.ts
++++ b/src/credentials_provider/oauth2.ts
+@@ -78,7 +78,8 @@
+     input,
+     init,
+     applyCredentials,
+-    errorHandler,
++    credentialsProvider.errorHandler?.bind(credentialsProvider) ??
++      errorHandler,
+   );
+ }
+ 
+@@ -89,6 +90,7 @@
+   return fetchOkWithCredentialsAdapter(
+     credentialsProvider,
+     applyCredentials,
+-    errorHandler,
++    credentialsProvider.errorHandler?.bind(credentialsProvider) ??
++      errorHandler,
+   );
+ }
+--- a/src/credentials_provider/http_request.ts
++++ b/src/credentials_provider/http_request.ts
+@@ -77,7 +77,10 @@
+     credentials: Credentials,
+     requestInit: RequestInit & { progressListener?: ProgressListener },
+   ) => RequestInit & { progressListener?: ProgressListener },
+-  errorHandler: (httpError: HttpError, credentials: Credentials) => "refresh",
++  errorHandler: (
++    httpError: HttpError,
++    credentials: Credentials,
++  ) => "refresh" | Promise<"refresh">,
+ ): FetchOk {
+   return (input, init = {}) =>
+     fetchOkWithCredentials(
+--- a/src/kvstore/middleauth/credentials_provider.ts
++++ b/src/kvstore/middleauth/credentials_provider.ts
+@@ -296,7 +296,10 @@
+       if (response) {
+         const { headers } = response;
+         const contentType = headers.get("content-type");
+-        if (contentType === "application/json") {
++        if (
++          contentType?.split(";", 1)[0].trim().toLowerCase() ===
++          "application/json"
++        ) {
+           const json = await response.json();
+           if (json.error && json.error === "missing_tos") {
+             // Missing terms of service agreement.  Prompt user.

@@ -2,8 +2,9 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 const root = import.meta.dirname, base = process.env.BASE_URL;
+const evidence = resolve(root, process.env.EVIDENCE_DIR || 'test-results');
 if (!base) throw new Error('Set BASE_URL to the exact published release directory URL.');
-const manifest = JSON.parse(await readFile(resolve(root, 'evidence/release-manifest.json'))), results = [];
+const manifest = JSON.parse(await readFile(resolve(evidence, 'release-manifest.json'))), results = [];
 const queue = [...manifest.files];
 await Promise.all(Array.from({ length: 4 }, async () => {
   while (queue.length) {
@@ -16,6 +17,6 @@ await Promise.all(Array.from({ length: 4 }, async () => {
   }
 }));
 const report = { checkedAt: new Date().toISOString(), base, passed: results.every(file => file.passed), files: results.sort((a, b) => a.path.localeCompare(b.path)) };
-await writeFile(resolve(root, 'evidence/public-verification.json'), JSON.stringify(report, null, 2));
+await writeFile(resolve(evidence, 'public-verification.json'), JSON.stringify(report, null, 2));
 console.log(`${results.filter(x => x.passed).length}/${results.length} public files passed content hashes and MIME checks`);
 if (!report.passed) process.exitCode = 1;

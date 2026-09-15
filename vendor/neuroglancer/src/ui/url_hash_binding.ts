@@ -51,6 +51,40 @@ export function encodeStateAsFragment(state: any): string {
 export interface UrlHashBindingOptions {
   defaultFragment?: string;
   updateDelayMilliseconds?: number;
+  upgradeState?: (state: any) => any;
+}
+
+/** Validate and upgrade before mutation, restoring the workspace on failure. */
+export function restoreStateWithRollback(
+  root: Trackable,
+  state: unknown,
+  reset: boolean,
+  upgradeState: (state: any) => any = (state) => state,
+) {
+  verifyObject(state);
+  const upgradedState = upgradeState(state);
+  verifyObject(upgradedState);
+  const previous = JSON.stringify(
+    getCachedJson(root).value,
+    bigintToStringJsonReplacer,
+  );
+  try {
+    if (reset) root.reset();
+    root.restoreState(upgradedState);
+  } catch (error) {
+    try {
+      root.reset();
+      root.restoreState(
+        previous === undefined ? undefined : JSON.parse(previous),
+      );
+    } catch (rollbackError) {
+      throw new AggregateError(
+        [error, rollbackError],
+        "Unable to load the requested state or restore the previous state.",
+      );
+    }
+    throw error;
+  }
 }
 
 /**
@@ -74,6 +108,7 @@ export class UrlHashBinding extends RefCounted {
   parseError = new WatchableValue<Error | undefined>(undefined);
 
   private defaultFragment: string;
+  private upgradeState: (state: any) => any;
 
   constructor(
     public root: Trackable,
@@ -81,7 +116,11 @@ export class UrlHashBinding extends RefCounted {
     options: UrlHashBindingOptions = {},
   ) {
     super();
-    const { updateDelayMilliseconds = 200, defaultFragment = "{}" } = options;
+    const {
+      updateDelayMilliseconds = 200,
+      defaultFragment = "{}",
+      upgradeState = (state) => state,
+    } = options;
     this.registerEventListener(window, "hashchange", () =>
       this.updateFromUrlHash(),
     );
@@ -93,6 +132,7 @@ export class UrlHashBinding extends RefCounted {
     this.registerDisposer(root.changed.add(throttledSetUrlHash));
     this.registerDisposer(() => throttledSetUrlHash.cancel());
     this.defaultFragment = defaultFragment;
+    this.upgradeState = upgradeState;
   }
 
   /**
@@ -115,32 +155,6 @@ export class UrlHashBinding extends RefCounted {
     }
   }
 
-  /** Applies validated state without discarding the workspace on a failed restore. */
-  private restoreState(state: unknown, reset: boolean) {
-    verifyObject(state);
-    const previous = JSON.stringify(
-      getCachedJson(this.root).value,
-      bigintToStringJsonReplacer,
-    );
-    try {
-      if (reset) this.root.reset();
-      this.root.restoreState(state);
-    } catch (error) {
-      try {
-        this.root.reset();
-        this.root.restoreState(
-          previous === undefined ? undefined : JSON.parse(previous),
-        );
-      } catch (rollbackError) {
-        throw new AggregateError(
-          [error, rollbackError],
-          "Unable to load the requested state or restore the previous state.",
-        );
-      }
-      throw error;
-    }
-  }
-
   /**
    * Sets the current state to match the URL hash.  If it is desired to initialize the state based
    * on the URL hash, then this should be called immediately after construction.
@@ -159,7 +173,12 @@ export class UrlHashBinding extends RefCounted {
             .read(url, { throwIfMissing: true })
             .then((response) => response.response.json())
             .then((json) => {
-              this.restoreState(json, true);
+              restoreStateWithRollback(
+                this.root,
+                json,
+                true,
+                this.upgradeState,
+              );
             }),
           {
             initialMessage: `Loading state from ${url}`,
@@ -171,7 +190,7 @@ export class UrlHashBinding extends RefCounted {
         // Firefox always %-encodes the URL even if it is not typed that way.
         s = decodeURIComponent(s);
         const state = urlSafeParse(s);
-        this.restoreState(state, false);
+        restoreStateWithRollback(this.root, state, false, this.upgradeState);
         this.prevStateString = undefined;
       } else if (s.startsWith("#!")) {
         s = s.slice(2);
@@ -180,7 +199,7 @@ export class UrlHashBinding extends RefCounted {
           return;
         }
         const state = urlSafeParse(s);
-        this.restoreState(state, true);
+        restoreStateWithRollback(this.root, state, true, this.upgradeState);
         this.prevStateString = s;
       } else {
         throw new Error(
@@ -189,7 +208,10 @@ export class UrlHashBinding extends RefCounted {
       }
       this.parseError.value = undefined;
     } catch (parseError) {
-      this.parseError.value = parseError;
+      this.parseError.value =
+        parseError instanceof Error
+          ? parseError
+          : new Error(String(parseError));
     }
   }
 }

@@ -1,4 +1,5 @@
-export const UPSTREAM = Object.freeze({ version: '2.41.2', commit: '3598da303d5eb865564a2f1f5123220a33f87e25' });
+import upstream from './UPSTREAM.json' with { type: 'json' };
+export const UPSTREAM = Object.freeze({ version: upstream.version, commit: upstream.commit, repository: upstream.repository, branch: upstream.branch });
 export const SOURCE = 'precomputed://https://c10s.pni.princeton.edu/mec_alignment_2025-09/alignment/img/v2';
 export const DEFAULT_STATE = {
   title: 'MEC · Neuroglancer Mobile', dimensions: { x: [16e-9, 'm'], y: [16e-9, 'm'], z: [45e-9, 'm'] },
@@ -23,7 +24,7 @@ export function finiteNumber(value, label = 'Coordinate') {
 }
 export function validateState(value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Expected a Neuroglancer state object.');
-  if (value.layers !== undefined && !Array.isArray(value.layers)) throw new Error('State layers must be an array.');
+  if (value.layers !== undefined && (!value.layers || typeof value.layers !== 'object')) throw new Error('State layers must be an array or a named layer map.');
   if (value.position !== undefined && (!Array.isArray(value.position) || value.position.some(v => !Number.isFinite(v)))) throw new Error('State coordinates must be finite numbers.');
   return value;
 }

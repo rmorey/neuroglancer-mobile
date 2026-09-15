@@ -7,7 +7,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 import { chromium } from './browser-runtime.mjs';
 const baseURL = process.env.BASE_URL || 'http://127.0.0.1:4174/';
 const fixtureBase = process.env.FIXTURE_BASE_URL?.replace(/\/$/, '') || null;
-const tag = process.env.EVIDENCE_TAG || 'touch-keyboard';
+const tag = process.env.EVIDENCE_TAG ? `${process.env.EVIDENCE_TAG}-touch-keyboard` : 'touch-keyboard';
 assert.match(tag, /^[a-z0-9-]+$/, 'EVIDENCE_TAG must contain lowercase letters, digits, and hyphens.');
 const evidence = resolve(root, process.env.EVIDENCE_DIR || 'test-results'); await mkdir(evidence, { recursive: true });
 const report = { startedAt: new Date().toISOString(), baseURL, fixtureBase, evidenceTag: tag, browser: null, cases: [], errors: [],

@@ -10,9 +10,10 @@ const tag = process.env.EVIDENCE_TAG ? `${process.env.EVIDENCE_TAG}-` : '';
 assert.match(tag, /^[a-z0-9-]*$/);
 const evidence = resolve(import.meta.dirname, '..', process.env.EVIDENCE_DIR || 'test-results');
 const manifest = JSON.parse(await readFile(new URL('./fixtures/manifest.json', import.meta.url)));
+const engine = JSON.parse(await readFile(new URL('../UPSTREAM.json', import.meta.url)));
 await mkdir(evidence, { recursive: true });
 const report = {
-  checkedAt: new Date().toISOString(), url: documentURL.href, upstreamPin: manifest.upstreamPin,
+  checkedAt: new Date().toISOString(), url: documentURL.href, upstreamPin: engine.commit, fixtureSourcePin: manifest.upstreamPin,
   fixture: 'raw-uint8', shape: manifest.shape, checks: [], errors: [], console: [], responses: [],
   semantics: 'Native slice opacity is separate from volume opacity. Volume opacity uses shader alpha and volumeRenderingGain.',
   limitations: ['Chromium mobile emulation with software WebGL; physical phones and native iOS Safari remain untested.'],

@@ -301,6 +301,7 @@ class LayerSidePanel extends SidePanel {
       },
       this.visibility,
     );
+    this.registerDisposer(this.tabView);
     this.tabView.element.style.flex = "1";
     this.tabView.element.classList.add(
       "neuroglancer-layer-side-panel-tab-view",

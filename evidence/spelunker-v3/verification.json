@@ -1,0 +1,52 @@
+{
+  "checkedAt": "2026-09-15T02:38:47.658Z",
+  "url": "https://c10s.pni.princeton.edu/web/neuroglancer-mobile/2026-09-15-spelunker-v3/index.html",
+  "version": {
+    "version": "1.1.0",
+    "builtAt": "2026-09-15T02:31:42.454Z",
+    "upstream": "d4aeac3b66eb4bd3fa86dbdc0202a7f006439740",
+    "engine": "spelunker",
+    "repository": "https://github.com/seung-lab/neuroglancer",
+    "stateServers": {
+      "cave": {
+        "url": "middleauth+https://global.daf-apis.com/nglstate/api/v1/post",
+        "default": true
+      }
+    },
+    "segmentListColorWidget": true
+  },
+  "browserChecks": 88,
+  "suites": [
+    {
+      "report": "viewer.json",
+      "passed": 31
+    },
+    {
+      "report": "annotations.json",
+      "passed": 8
+    },
+    {
+      "report": "workspace.json",
+      "passed": 9
+    },
+    {
+      "report": "keyboard.json",
+      "passed": 6
+    },
+    {
+      "report": "volume.json",
+      "passed": 6
+    },
+    {
+      "report": "spelunker.json",
+      "passed": 22
+    },
+    {
+      "report": "proofreading-touch.json",
+      "passed": 6
+    }
+  ],
+  "publicFiles": 145,
+  "syntheticServicesForEditing": true,
+  "physicalDevicesQualified": false
+}

@@ -1,0 +1,10 @@
+--- a/src/ui/layer_side_panel.ts
++++ b/src/ui/layer_side_panel.ts
+@@ -301,6 +301,7 @@
+       },
+       this.visibility,
+     );
++    this.registerDisposer(this.tabView);
+     this.tabView.element.style.flex = "1";
+     this.tabView.element.classList.add(
+       "neuroglancer-layer-side-panel-tab-view",

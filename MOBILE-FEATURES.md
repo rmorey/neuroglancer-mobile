@@ -2,7 +2,7 @@
 
 This version embeds the upstream Neuroglancer viewer. The mobile interface controls the same viewer, layer manager, navigation state, annotations, segmentation objects, and serialized state used by the native interface. The original lightweight XY prototype remains separate.
 
-**Source pin:** Neuroglancer 2.41.2, commit `3598da303d5eb865564a2f1f5123220a33f87e25`, vendored in [`vendor/neuroglancer`](vendor/neuroglancer). The build uses the upstream production standalone configuration with its default layer, datasource, key-value-store, worker, and WebAssembly modules enabled. No image-only replacement renderer is used here.
+**Source pin:** Seung Lab Spelunker, commit `d4aeac3b66eb4bd3fa86dbdc0202a7f006439740` (Neuroglancer package version 2.41.2), vendored in [`vendor/neuroglancer`](vendor/neuroglancer). The build uses its production standalone configuration with all default layer, datasource, key-value-store, worker, and WebAssembly modules enabled, plus its CAVE state-server configuration, custom bindings, and segment-color widget. See [Spelunker support](SPELUNKER.md).
 
 This is a map of implemented entry points and retained upstream capabilities. It is **not a claim that every upstream feature has been verified on a physical mobile device**. Runtime evidence must come from the saved browser test results for the built version.
 
@@ -52,6 +52,11 @@ CSS makes these controls visible and larger. CSS alone does not replace mouse-on
 
 ## Verified browser behavior
 
+The saved `evidence/` reports referenced below describe the earlier Google-engine
+release. The Spelunker release is qualified separately in [SPELUNKER.md](SPELUNKER.md)
+and its release receipt. Historical fixture origins are retained in new reports
+separately from the engine commit actually under test.
+
 Upstream maps one-finger slice dragging to moving through Z, two-finger dragging to pan, pinch to zoom, double tap to select, and long press to recenter. The mobile shell changes the primary slice gesture to pan and provides separate section controls. Perspective panels keep their own camera gestures.
 
 The following checks passed in Chromium 153.0.8010.12 with touch emulation and software WebGL. Gesture tests send browser touch events; they do not infer interaction success from screenshots alone.
@@ -75,7 +80,7 @@ Preserved capabilities still needing dedicated interaction evidence include ever
 
 ## Targeted upstream fixes
 
-Three small, recorded patches preserve native behavior while fixing failures exposed by mobile use: state downloads attach and remove their temporary link and revoke its blob URL; URL state parsing validates before mutation and restores the prior workspace after a failed restoration; touch cancellation clears pending gesture and long-press state. Patch provenance is recorded in [`UPSTREAM.json`](UPSTREAM.json) and [`patches`](patches). The candidate browser suite covers successful native downloads, malformed/invalid URL state, and cancellation followed by fresh pan and pinch gestures.
+Recorded patches preserve native behavior while fixing failures exposed by mobile use: state downloads clean up their temporary links; URL and native-editor restoration upgrade/validate before mutation and roll back failures; touch cancellation clears pending gesture state. Additional patches expose Spelunker's existing setup to the embedded viewer and preserve the page path in short links. The complete current patch set is recorded in [`UPSTREAM.json`](UPSTREAM.json) and [`patches`](patches).
 
 ## Backend and platform boundaries
 

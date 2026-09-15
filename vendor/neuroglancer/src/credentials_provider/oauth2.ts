@@ -78,7 +78,8 @@ export function fetchOkWithOAuth2Credentials(
     input,
     init,
     applyCredentials,
-    errorHandler,
+    credentialsProvider.errorHandler?.bind(credentialsProvider) ??
+      errorHandler,
   );
 }
 
@@ -89,6 +90,7 @@ export function fetchOkWithOAuth2CredentialsAdapter(
   return fetchOkWithCredentialsAdapter(
     credentialsProvider,
     applyCredentials,
-    errorHandler,
+    credentialsProvider.errorHandler?.bind(credentialsProvider) ??
+      errorHandler,
   );
 }

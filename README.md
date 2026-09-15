@@ -1,10 +1,10 @@
 # Neuroglancer Mobile
 
-A mobile interface around the full upstream standalone Neuroglancer engine, pinned to 2.41.2 (`3598da303d5eb865564a2f1f5123220a33f87e25`). This implementation uses upstream rendering, data sources, workers, codecs, layers, annotations, tools, and state serialization.
+A mobile interface around the full Spelunker standalone Neuroglancer engine, pinned to Seung Lab's `spelunker` commit `d4aeac3b66eb4bd3fa86dbdc0202a7f006439740` (package version 2.41.2). This implementation uses its rendering, data sources, workers, codecs, layers, annotations, tools, authentication, and state serialization.
 
-**[Open the Nokura demo](https://c10s.pni.princeton.edu/web/neuroglancer-mobile/2026-09-13-v2/index.html)** · [Verified release](DEPLOYMENT.md) · [Coverage and remaining gaps](MOBILE-FEATURES.md)
+**[Open the Spelunker Mobile demo](https://c10s.pni.princeton.edu/web/neuroglancer-mobile/2026-09-15-spelunker-v3/index.html)** · [Verified release](DEPLOYMENT.md) · [Spelunker support](SPELUNKER.md)
 
-This is an independent repository for the mobile interface, with a vendored upstream engine. It is not a GitHub fork of `google/neuroglancer` or an official Google release. The source pin, original license, and three small upstream patches are retained so engine updates and potential upstream contributions can be reviewed separately. See [CONTRIBUTING.md](CONTRIBUTING.md).
+This is an independent repository for the mobile interface, with a vendored Spelunker engine. It is not an official Google or Seung Lab release. The exact source pin, original license, and compatibility patches are retained so engine updates and potential upstream contributions can be reviewed separately. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 The default volume is `precomputed://https://c10s.pni.princeton.edu/mec_alignment_2025-09/alignment/img/v2`. Data requests go directly from the browser to the source. No dataset conversion, proxy, or copy is needed.
 
@@ -17,7 +17,10 @@ The default volume is `precomputed://https://c10s.pni.princeton.edu/mec_alignmen
 - **Workspace** exposes state import/export, saved views, settings, selection details, the command palette, and the original state editor. **Share** produces native Neuroglancer URLs.
 - **Full controls** reveals the complete original interface. Native custom layouts, transforms, multidimensional data, shaders, mesh/skeleton controls, tool palettes, and datasource-specific operations remain available. Workspace also offers a touch keyboard with modifier keys, custom key codes, and primary/right-click actions at the selected viewer point.
 
-Local annotations and saved views remain in viewer state or browser storage until exported/shared. Remote writes use the native backend's capabilities and permissions.
+- **Workspace → Spelunker tools** provides touch entry points for Graphene merge, split/multicut, find path, and annotation review. Native Graph controls include historical Time and timestamp locks. The segment color picker and Spelunker's M/C/F and bracket shortcuts are enabled.
+- **Create CAVE short link** saves the complete workspace to Spelunker's configured state service. Ordinary Share retains a full URL without a server upload. Legacy Spelunker tags, shaders, tool bindings, and timestamps are migrated when loading state; short links retain this app's page path.
+
+Local annotations and saved views remain in viewer state or browser storage until exported/shared. Remote writes use the native backend's capabilities and permissions. The included MEC source is imagery; it does not supply a proofreading backend. Full engine inclusion is separate from verification on a particular service or physical mobile device. See [Spelunker support](SPELUNKER.md).
 
 ## Reproduce
 
@@ -35,7 +38,7 @@ Open `http://127.0.0.1:4174/`. `dist/` is the complete static app. Serve `.wasm`
 
 The repository includes the engine source and application assets. Dependencies, generated bundles, and local browser profiles are excluded from Git. A fresh clone does not require a submodule checkout or files from the original development workspace.
 
-The three narrowly scoped upstream fixes are recorded in [UPSTREAM.json](UPSTREAM.json) and [patches](patches/): safe state-download cleanup, failed URL-state rollback, and canceled-touch reset. The vendored source already includes those patches. Do not apply them twice. Apache-2.0 license and notices remain in the vendor tree and built app.
+Compatibility fixes are recorded in [UPSTREAM.json](UPSTREAM.json) and [patches](patches/), including download cleanup, state rollback, canceled-touch reset, embedding setup, and short-link path preservation. The vendored source already includes those patches. Do not apply them twice. Apache-2.0 license and notices remain in the vendor tree and built app.
 
 ## Verify
 

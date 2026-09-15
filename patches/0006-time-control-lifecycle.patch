@@ -1,0 +1,192 @@
+--- a/src/datasource/graphene/frontend.ts
++++ b/src/datasource/graphene/frontend.ts
+@@ -1943,7 +1943,11 @@
+       (response) => response.json(),
+     );
+     const isoString = verifyObjectProperty(response, "iso", verifyString);
+-    return new Date(isoString).valueOf();
++    const timestamp = new Date(isoString).valueOf();
++    if (!Number.isFinite(timestamp)) {
++      throw new Error("The graph service returned an invalid oldest timestamp.");
++    }
++    return timestamp;
+   }
+ 
+   async getRoot(segment: bigint, timestamp = 0) {
+@@ -2111,9 +2115,19 @@
+       url,
+     );
+     this.graphServer = new GrapheneGraphServerInterface(this.httpSource);
+-    this.graphServer.getTimestampLimit().then((limit) => {
+-      this.timestampLimit.value = limit;
+-    });
++    this.graphServer.getTimestampLimit().then(
++      (limit) => {
++        if (!this.state.wasDisposed) this.timestampLimit.value = limit;
++      },
++      (error) => {
++        if (!this.state.wasDisposed) {
++          StatusMessage.showTemporaryMessage(
++            `Unable to load the historical segmentation time range: ${error}`,
++            4000,
++          );
++        }
++      },
++    );
+   }
+ 
+   connect(
+@@ -2576,7 +2590,7 @@
+ 
+ function timeLayerControl(): LayerControlFactory<SegmentationUserLayer> {
+   return {
+-    makeControl: (layer, context) => {
++    makeControl: (layer, context, { visibility }) => {
+       const segmentationGroupState =
+         layer.displayState.segmentationGroupState.value;
+       const {
+@@ -2600,49 +2614,76 @@
+       const intermediateTimestamp = new WatchableValue<number | undefined>(
+         timestamp.value,
+       );
+-      intermediateTimestamp.changed.add(async () => {
+-        if (intermediateTimestamp.value === timestamp.value) {
+-          return;
+-        }
+-        // resetting timestamp back to unset
+-        if (
+-          intermediateTimestamp.value === undefined &&
+-          segmentationGroupState.canSetTimestamp(layer.managedLayer.name)
+-        ) {
+-          timestamp.value = intermediateTimestamp.value;
+-          timestampOwner.delete(layer.managedLayer.name);
+-          return;
+-        }
+-        if (graph instanceof GrapheneGraphSource) {
+-          const selfLock = segmentationGroupState.timestampOwner.has(
+-            layer.managedLayer.name,
+-          );
+-          const canSetTimestamp = segmentationGroupState.canSetTimestamp(
+-            layer.managedLayer.name,
+-          );
+-          // if we have a lock while the timestamp is unset, it is a tool-based lock (this check can be improved)
+-          if (canSetTimestamp && (!selfLock || timestamp.value !== undefined)) {
+-            const nonLatestRoots = await graph.graphServer.filterLatestRoots(
+-              [...segmentationGroupState.selectedSegments],
+-              timestamp.value,
+-              true,
++      let disposed = false;
++      let changeGeneration = 0;
++      context.registerDisposer(() => {
++        disposed = true;
++        ++changeGeneration;
++      });
++      context.registerDisposer(
++        visibility.changed.add(() => {
++          if (!visibility.visible) {
++            ++changeGeneration;
++            intermediateTimestamp.value = timestamp.value;
++          }
++        }),
++      );
++      context.registerDisposer(
++        intermediateTimestamp.changed.add(async () => {
++          const generation = ++changeGeneration;
++          const requestedTimestamp = intermediateTimestamp.value;
++          if (requestedTimestamp === timestamp.value) return;
++          // Resetting timestamp back to unset.
++          if (
++            requestedTimestamp === undefined &&
++            segmentationGroupState.canSetTimestamp(layer.managedLayer.name)
++          ) {
++            timestamp.value = requestedTimestamp;
++            timestampOwner.delete(layer.managedLayer.name);
++            return;
++          }
++          if (!(graph instanceof GrapheneGraphSource)) return;
++          try {
++            const selfLock = segmentationGroupState.timestampOwner.has(
++              layer.managedLayer.name,
+             );
+-            if (
+-              !nonLatestRoots.length ||
+-              confirm(
+-                `Changing graphene time will clear ${nonLatestRoots.length} segment(s).`,
+-              )
+-            ) {
+-              timestamp.value = intermediateTimestamp.value;
+-              // is this where it is done
+-              timestampOwner.add(layer.managedLayer.name);
+-              return;
++            const canSetTimestamp = segmentationGroupState.canSetTimestamp(
++              layer.managedLayer.name,
++            );
++            // A lock while timestamp is unset belongs to an editing tool.
++            if (canSetTimestamp && (!selfLock || timestamp.value !== undefined)) {
++              const nonLatestRoots = await graph.graphServer.filterLatestRoots(
++                [...segmentationGroupState.selectedSegments],
++                timestamp.value,
++                true,
++              );
++              if (disposed || !visibility.visible || generation !== changeGeneration) return;
++              if (
++                segmentationGroupState.canSetTimestamp(layer.managedLayer.name) &&
++                (!timestampOwner.has(layer.managedLayer.name) ||
++                  timestamp.value !== undefined) &&
++                (!nonLatestRoots.length ||
++                  confirm(
++                    `Changing graphene time will clear ${nonLatestRoots.length} segment(s).`,
++                  ))
++              ) {
++                timestamp.value = requestedTimestamp;
++                timestampOwner.add(layer.managedLayer.name);
++                return;
++              }
+             }
++            intermediateTimestamp.value = timestamp.value;
++            StatusMessage.showTemporaryMessage("Timestamp is locked.");
++          } catch (error) {
++            if (disposed || !visibility.visible || generation !== changeGeneration) return;
++            intermediateTimestamp.value = timestamp.value;
++            StatusMessage.showTemporaryMessage(
++              `Unable to change segmentation time: ${error}`,
++              4000,
++            );
+           }
+-          intermediateTimestamp.value = timestamp.value;
+-          StatusMessage.showTemporaryMessage("Timestamp is locked.");
+-        }
+-      });
++        }),
++      );
+       const widget = context.registerDisposer(
+         new DateTimeInputWidget(
+           intermediateTimestamp,
+@@ -2650,14 +2691,19 @@
+           new Date(),
+         ),
+       );
+-      timestampLimit.changed.add(() => {
+-        widget.setMin(new Date(timestampLimit.value));
+-      });
+-      timestamp.changed.add(() => {
+-        if (timestamp.value !== intermediateTimestamp.value) {
+-          intermediateTimestamp.value = timestamp.value;
+-        }
+-      });
++      context.registerDisposer(
++        timestampLimit.changed.add(() => {
++          widget.setMin(new Date(timestampLimit.value));
++        }),
++      );
++      context.registerDisposer(
++        timestamp.changed.add(() => {
++          ++changeGeneration;
++          if (timestamp.value !== intermediateTimestamp.value) {
++            intermediateTimestamp.value = timestamp.value;
++          }
++        }),
++      );
+       controlElement.appendChild(widget.element);
+       return { controlElement, control: widget };
+     },

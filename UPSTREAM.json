@@ -1,25 +1,56 @@
 {
-  "repository": "https://github.com/google/neuroglancer",
-  "commit": "3598da303d5eb865564a2f1f5123220a33f87e25",
+  "repository": "https://github.com/seung-lab/neuroglancer",
+  "branch": "spelunker",
+  "commit": "d4aeac3b66eb4bd3fa86dbdc0202a7f006439740",
+  "sourceTree": "186635b6f19b414570972714d6ca0208927750c1",
   "version": "2.41.2",
   "license": "Apache-2.0",
-  "profile": "default standalone browser; no datasource, kvstore, or layer exclusion conditions",
+  "profile": "Spelunker standalone browser with its state servers, custom input bindings, and segment color widget; no datasource, kvstore, or layer exclusion conditions",
   "sourceDirectory": "vendor/neuroglancer",
   "upstreamModifications": [
     {
       "file": "src/ui/state_editor.ts",
       "patch": "patches/0001-state-editor-download-cleanup.patch",
-      "reason": "Attach and safely remove the download link, then revoke its object URL."
+      "reason": "Attach and safely remove the download link, revoke its object URL, and upgrade editor state before mutation with rollback on restoration failure."
     },
     {
       "file": "src/ui/url_hash_binding.ts",
       "patch": "patches/0002-url-state-rollback.patch",
-      "reason": "Parse before reset and restore the previous workspace if replacement, additive, or remote state restoration fails."
+      "reason": "Export a shared safe restoration helper, parse and upgrade before reset, and restore the previous workspace if replacement, additive, remote, or editor state restoration fails."
     },
     {
       "file": "src/util/touch_bindings.ts",
       "patch": "patches/0003-touch-cancel-reset.patch",
       "reason": "Cancel pending holds and clear gesture and multi-tap state when the browser cancels a touch sequence."
+    },
+    {
+      "file": "src/ui/default_viewer_setup.ts",
+      "patch": "patches/0004-embedded-viewer-configuration.patch",
+      "reason": "Expose Spelunker's complete binding and state-upgrader configuration for the mobile shell while retaining the default standalone setup."
+    },
+    {
+      "file": "src/datasource/state_share.ts",
+      "patch": "patches/0005-state-share-subpath.patch",
+      "reason": "Preserve the deployed viewer pathname and query in short links and include clipboard failures in the share error handler."
+    },
+    {
+      "file": "src/datasource/graphene/frontend.ts",
+      "patch": "patches/0006-time-control-lifecycle.patch",
+      "reason": "Dispose Time control listeners with their panel, invalidate pending changes when panels hide or dispose, ignore superseded changes, and recover visibly from failed historical-root or oldest-timestamp requests."
+    },
+    {
+      "files": [
+        "src/credentials_provider/oauth2.ts",
+        "src/credentials_provider/http_request.ts",
+        "src/kvstore/middleauth/credentials_provider.ts"
+      ],
+      "patch": "patches/0007-middleauth-error-handler.patch",
+      "reason": "Connect OAuth2 requests to provider-specific asynchronous error handlers so missing CAVE terms trigger the native acceptance and retry flow; recognize JSON content types with charset parameters."
+    },
+    {
+      "file": "src/ui/layer_side_panel.ts",
+      "patch": "patches/0008-layer-tab-disposal.patch",
+      "reason": "Dispose the native tab view with its layer panel so Time and other cached tab controls cannot retain listeners or apply pending changes after the panel closes."
     }
   ]
 }

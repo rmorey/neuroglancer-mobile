@@ -242,6 +242,9 @@ const moveToAnnotation = (
     layerRank,
   );
   setLayerPosition(layer, chunkTransform, layerPosition);
+  if (state.displayState.swapVisibleSegmentsOnMove.value) {
+    showAnnotationSegments(annotation, state, true);
+  }
 };
 
 function visitTransformedAnnotationGeometry(
@@ -277,6 +280,33 @@ interface AnnotationLayerViewAttachedState {
   idToIndex: Map<AnnotationId, number>;
   listOffset: number;
 }
+
+const showAnnotationSegments = (
+  annotation: Annotation,
+  state: AnnotationLayerState,
+  onlyVisible = false,
+) => {
+  const { relatedSegments } = annotation;
+  if (relatedSegments) {
+    const { source, displayState } = state;
+    const { relationships } = source;
+    const { relationshipStates } = displayState;
+    for (let i = 0, count = relationships.length; i < count; ++i) {
+      const segmentationState = relationshipStates.get(relationships[i])
+        .segmentationState.value;
+      if (segmentationState) {
+        if (onlyVisible) {
+          segmentationState.segmentationGroupState.value.visibleSegments.clear();
+        }
+        for (const segmentList of relatedSegments) {
+          segmentationState.segmentationGroupState.value.visibleSegments.add(
+            segmentList,
+          );
+        }
+      }
+    }
+  }
+};
 
 export class AnnotationLayerView extends Tab {
   private previousSelectedState:
@@ -2380,9 +2410,13 @@ export function UserLayerWithAnnotationsMixin<
                 label.appendChild(idValueElement);
                 parent.appendChild(label);
 
+                const activeBooleanProperties: string[] = [];
                 for (let i = 0, count = allProperties.length; i < count; ++i) {
                   const property = allProperties[i];
                   const value = allValues[i];
+                  if (property.type === "bool" && value !== 0) {
+                    activeBooleanProperties.push(property.identifier);
+                  }
                   // Readonly if regular property and source is readonly
                   // or if we have a default property
                   const annotationPropertyIndex =
@@ -2575,6 +2609,26 @@ export function UserLayerWithAnnotationsMixin<
                     valueElementWrapper.appendChild(valueElement);
                   }
                   label.appendChild(valueElementWrapper);
+                  parent.appendChild(label);
+                }
+
+                if (activeBooleanProperties.length !== 0) {
+                  const label = document.createElement("label");
+                  label.classList.add("neuroglancer-annotation-property");
+                  const idElement = document.createElement("span");
+                  idElement.classList.add(
+                    "neuroglancer-annotation-property-label",
+                  );
+                  idElement.textContent = "boolean properties";
+                  label.appendChild(idElement);
+                  const valueElement = document.createElement("span");
+                  valueElement.classList.add(
+                    "neuroglancer-annotation-property-value",
+                  );
+                  valueElement.textContent = activeBooleanProperties
+                    .map((identifier) => `#${identifier}`)
+                    .join(" ");
+                  label.appendChild(valueElement);
                   parent.appendChild(label);
                 }
 
@@ -2906,6 +2960,25 @@ export function makeAnnotationListElement(
     description.classList.add("neuroglancer-annotation-description");
     description.textContent = annotation.description;
     element.appendChild(description);
+  }
+  const activeBooleanProperties: string[] = [];
+  const properties = state.source.properties.value;
+  for (let i = 0, count = properties.length; i < count; ++i) {
+    const property = properties[i];
+    if (property.type === "bool" && annotation.properties[i] !== 0) {
+      activeBooleanProperties.push(property.identifier);
+    }
+  }
+  if (activeBooleanProperties.length !== 0) {
+    ++numRows;
+    const booleanProperties = document.createElement("div");
+    booleanProperties.classList.add(
+      "neuroglancer-annotation-boolean-properties",
+    );
+    booleanProperties.textContent = activeBooleanProperties
+      .map((identifier) => `#${identifier}`)
+      .join(" ");
+    element.appendChild(booleanProperties);
   }
   icon.style.gridRow = `span ${numRows}`;
   if (deleteButton !== undefined) {

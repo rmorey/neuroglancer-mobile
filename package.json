@@ -1,6 +1,6 @@
 {
   "name": "neuroglancer-mobile",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "engines": { "node": ">=22.18" },
@@ -8,7 +8,8 @@
     "build": "node build.mjs",
     "start": "node serve.mjs",
     "test": "node tests/state.test.mjs",
-    "test:browser": "node tests/full-browser.mjs && node tests/annotation-editor.browser.mjs && node tests/workspace.browser.mjs && node tests/touch-keyboard.browser.mjs && node tests/volume-rendering.browser.mjs"
+    "check:engine": "node vendor/neuroglancer/node_modules/typescript/lib/tsc.js --project vendor/neuroglancer/tsconfig.json --noEmit --incremental false",
+    "test:browser": "node tests/full-browser.mjs && node tests/annotation-editor.browser.mjs && node tests/workspace.browser.mjs && node tests/touch-keyboard.browser.mjs && node tests/volume-rendering.browser.mjs && node tests/spelunker.browser.mjs && node tests/spelunker-touch.browser.mjs"
   },
   "devDependencies": { "playwright": "1.63.0" }
 }

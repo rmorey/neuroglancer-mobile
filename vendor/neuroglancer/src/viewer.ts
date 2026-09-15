@@ -97,6 +97,7 @@ import { SelectionDetailsPanel } from "#src/ui/selection_details.js";
 import { SidePanelManager } from "#src/ui/side_panel.js";
 import { StateEditorDialog } from "#src/ui/state_editor.js";
 import { StatisticsDisplayState, StatisticsPanel } from "#src/ui/statistics.js";
+import type { Tool } from "#src/ui/tool.js";
 import { GlobalToolBinder, LocalToolBinder } from "#src/ui/tool.js";
 import {
   MultiToolPaletteDropdownButton,
@@ -417,6 +418,7 @@ class TrackableViewerState extends CompoundTrackable {
 }
 
 export class Viewer extends RefCounted implements ViewerState {
+  stateUpgrader = (state: any) => state;
   title = new TrackableValue<string | undefined>(undefined, verifyString);
   coordinateSpace = new TrackableCoordinateSpace();
   position = this.registerDisposer(new Position(this.coordinateSpace));
@@ -1165,6 +1167,17 @@ export class Viewer extends RefCounted implements ViewerState {
    * Called once by the constructor to register the action listeners.
    */
   private registerActionListeners() {
+    const sendEventToSelectedLayer = (type: string) => {
+      this.selectedLayer.layer?.layer?.dispatchLayerEvent(type);
+    };
+
+    this.bindAction("select-previous", () => {
+      sendEventToSelectedLayer("select-previous");
+    });
+    this.bindAction("select-next", () => {
+      sendEventToSelectedLayer("select-next");
+    });
+
     for (const action of ["recolor", "clear-segments"]) {
       this.bindAction(action, () => {
         this.layerManager.invokeAction(action);
@@ -1293,8 +1306,8 @@ export class Viewer extends RefCounted implements ViewerState {
     new LocalToolBinder(this, this.globalToolBinder),
   );
 
-  activateTool(uppercase: string) {
-    this.globalToolBinder.activate(uppercase);
+  activateTool(key: string, tool?: Tool<object>) {
+    this.globalToolBinder.activate(key, tool);
   }
 
   deactivateTools() {

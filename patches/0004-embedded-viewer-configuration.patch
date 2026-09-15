@@ -1,0 +1,29 @@
+--- a/src/ui/default_viewer_setup.ts
++++ b/src/ui/default_viewer_setup.ts
+@@ -226,10 +226,10 @@
+ }
+ 
+ /**
+- * Sets up the default neuroglancer viewer.
++ * Installs Spelunker's input bindings and state migration on an existing viewer.
++ * Embedders must call this before restoring state or constructing UrlHashBinding.
+  */
+-export function setupDefaultViewer() {
+-  const viewer = ((<any>window).viewer = makeDefaultViewer());
++export function configureDefaultViewer(viewer: Viewer) {
+   setDefaultInputEventBindings(viewer.inputEventBindings);
+   if (hasCustomBindings) {
+     setCustomInputEventBindings(viewer, NEUROGLANCER_CUSTOM_INPUT_BINDINGS!);
+@@ -262,6 +262,12 @@
+     }
+     return state;
+   };
++}
++
++/** Sets up the default neuroglancer viewer. */
++export function setupDefaultViewer() {
++  const viewer = ((<any>window).viewer = makeDefaultViewer());
++  configureDefaultViewer(viewer);
+ 
+   const hashBinding = viewer.registerDisposer(
+     new UrlHashBinding(

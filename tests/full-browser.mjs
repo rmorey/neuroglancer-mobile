@@ -10,8 +10,9 @@ const tag = process.env.EVIDENCE_TAG || 'full-local';
 assert.match(tag, /^[a-z0-9-]+$/);
 const evidence = resolve(root, process.env.EVIDENCE_DIR || 'test-results'); await mkdir(evidence, { recursive: true });
 const manifest = JSON.parse(await readFile(resolve(here, 'fixtures/manifest.json'), 'utf8'));
+const engine = JSON.parse(await readFile(resolve(root, 'UPSTREAM.json'), 'utf8'));
 const requested = process.env.CASES?.split(',');
-const report = { startedAt: new Date().toISOString(), baseURL, fixtureBase, upstreamPin: manifest.upstreamPin,
+const report = { startedAt: new Date().toISOString(), baseURL, fixtureBase, upstreamPin: engine.commit, fixtureSourcePin: manifest.upstreamPin,
   device: { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true },
   cases: [], console: [], errors: [], failedRequests: [], responses: [], warnings: [],
   limitations: ['Chromium mobile emulation on software WebGL; physical iOS/Android and cellular performance untested.', 'WebKit download succeeded but host libraries prevent launch; see browser-engines.json.'] };

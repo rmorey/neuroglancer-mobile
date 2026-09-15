@@ -38,6 +38,7 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Unit checks and production build
         run: |
+          npm run check:engine
           npm test
           npm run build
       - name: Browser checks
