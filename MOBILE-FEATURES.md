@@ -1,10 +1,8 @@
-# Neuroglancer Mobile: feature access and verification scope
+# Mobile features
 
-This version embeds the upstream Neuroglancer viewer. The mobile interface controls the same viewer, layer manager, navigation state, annotations, segmentation objects, and serialized state used by the native interface. The original lightweight XY prototype remains separate.
+The mobile shell drives the same viewer, layer manager, navigation, annotation and state objects as the native interface. Anything Neuroglancer can load or serialize still works. The shell adds touch entry points, and **Full controls** shows the desktop UI.
 
-**Source pin:** Seung Lab Spelunker, commit `d4aeac3b66eb4bd3fa86dbdc0202a7f006439740` (Neuroglancer package version 2.41.2), vendored in [`vendor/neuroglancer`](vendor/neuroglancer). The build uses its production standalone configuration with all default layer, datasource, key-value-store, worker, and WebAssembly modules enabled, plus its CAVE state-server configuration, custom bindings, and segment-color widget. See [Spelunker support](SPELUNKER.md).
-
-This is a map of implemented entry points and retained upstream capabilities. It is **not a claim that every upstream feature has been verified on a physical mobile device**. Runtime evidence must come from the saved browser test results for the built version.
+This is a map of entry points, not a claim that each feature has been tested on a physical device.
 
 ## Workspace entry points
 
@@ -39,7 +37,7 @@ This is a map of implemented entry points and retained upstream capabilities. It
 
 The custom shell has large controls, safe-area spacing, 16 px form text, a scrollable panel, and portrait/landscape layouts. Native panels keep their existing contents and lifecycle. On smaller screens their presentation becomes a sheet; the native layout engine and rendered panels stay attached to the upstream viewer.
 
-Native selectors reviewed against the pinned source include:
+Native selectors restyled for touch:
 
 - `.neuroglancer-side-panel`, `.neuroglancer-side-panel-column`, `.neuroglancer-side-panel-row`, and `.neuroglancer-side-panel-titlebar` for panel placement.
 - `.neuroglancer-tab-view-bar` and `.neuroglancer-tab-label` for scrollable, touch-sized layer tabs.
@@ -50,46 +48,18 @@ Native selectors reviewed against the pinned source include:
 
 CSS makes these controls visible and larger. CSS alone does not replace mouse-only commands with touch interactions.
 
-## Verified browser behavior
+## Gestures
 
-The saved `evidence/` reports referenced below describe the earlier Google-engine
-release. The Spelunker release is qualified separately in [SPELUNKER.md](SPELUNKER.md)
-and its release receipt. Historical fixture origins are retained in new reports
-separately from the engine commit actually under test.
+Upstream maps a one-finger slice drag to moving through Z, a two-finger drag to pan, pinch to zoom, double tap to select and long press to recenter. The shell makes the one-finger drag pan instead, and moves section stepping to the bottom bar. Perspective panels keep their camera gestures.
 
-Upstream maps one-finger slice dragging to moving through Z, two-finger dragging to pan, pinch to zoom, double tap to select, and long press to recenter. The mobile shell changes the primary slice gesture to pan and provides separate section controls. Perspective panels keep their own camera gestures.
+## Limits
 
-The following checks passed in Chromium 153.0.8010.12 with touch emulation and software WebGL. Gesture tests send browser touch events; they do not infer interaction success from screenshots alone.
-
-| Behavior exercised | Saved evidence |
-| --- | --- |
-| Touch cancellation followed by one-finger pan and pinch; section axis and step changes; all nine named layouts | [`full-candidate-local-browser-report.json`](evidence/full-candidate-local-browser-report.json), cases `real-touch-pan-pinch-and-section-controls` and `all-native-layouts` |
-| Touch creation of point, line, box, ellipsoid, and polyline; Finish and Cancel; selection/deletion; moving a native point handle and deleting at its new location | Same report, cases beginning `touch-create-five-annotation-geometries` and `touch-annotation-` |
-| Numeric geometry edits for all five shapes, descriptions, typed properties, exact uint64 relations, polyline vertices, undo/redo, and rejected invalid imports | [`annotation-editor-browser.json`](evidence/annotation-editor-browser.json), eight editor checks |
-| Native state/share round trips, orientation/reset, layer actions, native editor download, and rejection of malformed state without losing the workspace | [`full-candidate-local-browser-report.json`](evidence/full-candidate-local-browser-report.json) and [`workspace-browser.json`](evidence/workspace-browser.json) |
-| On-screen native ArrowRight and Ctrl+Equal change viewer state; axes toggle and Ctrl+Equal run through actual accessory buttons; modifiers affect native controls while excluding editable fields; right-click event delivery; Clear and Close release modifiers | Main report case `touch-native-keyboard-and-sticky-modifier`; [`touch-keyboard-browser-report.json`](evidence/touch-keyboard-browser-report.json), six accessory checks |
-| Mobile shell and sheets fit 360×640, 390×844, 844×390, and 1440×900; measured shell controls have 44 px targets. The keyboard also fits the three phone viewports with all 17 measured controls at least 44 px. | Main report case `responsive-workspace-panels`; accessory report case `phone-and-landscape-bounds`; [360×640](evidence/touch-keyboard-360x640.png), [390×844](evidence/touch-keyboard-390x844.png), and [844×390](evidence/touch-keyboard-844x390.png) screenshots |
-
-The main candidate suite records 31 passing cases, including real MEC screenshot pixels and deterministic image, segmentation, object, annotation, and Zarr fixtures. See [`PARITY_VALIDATION.md`](evidence/PARITY_VALIDATION.md) for the data coverage and exact boundaries. The keyboard test supports `BASE_URL` and `EVIDENCE_TAG` for separate public-demo evidence. Optional `FIXTURE_BASE_URL` replaces the default MEC layer with the deterministic `raw-uint8` fixture before running the same commands.
-
-The same six accessory checks also passed against the [published Nokura demo](https://c10s.pni.princeton.edu/web/neuroglancer-mobile/2026-09-13-v2/index.html) using the requested MEC volume: [`nokura-touch-keyboard-browser-report.json`](evidence/nokura-touch-keyboard-browser-report.json). The explicit `index.html` URL is required on this host; the directory URL returned 404 and its startup failure is preserved separately.
-
-The separate [public volume suite](evidence/nokura-volume-rendering-browser.json) also passed all six checks, including true ray marching, shader color/alpha/gain, one-finger 3D rotation, and two-finger rotation within an oblique slice.
-
-Preserved capabilities still needing dedicated interaction evidence include every segment filter and star operation, backend-specific merge/split and anchor tools, native docking/drag reordering, arbitrary custom key bindings, and every property-entry tool. Accessory key and mouse event delivery is verified; it does not certify every command receiving those events. Custom layouts and all possible state combinations also need targeted tests beyond the recorded round trips.
-
-## Targeted upstream fixes
-
-Recorded patches preserve native behavior while fixing failures exposed by mobile use: state downloads clean up their temporary links; URL and native-editor restoration upgrade/validate before mutation and roll back failures; touch cancellation clears pending gesture state. Additional patches expose Spelunker's existing setup to the embedded viewer and preserve the page path in short links. The complete current patch set is recorded in [`UPSTREAM.json`](UPSTREAM.json) and [`patches`](patches).
-
-## Backend and platform boundaries
-
-- The standalone browser profile does not contain Python-server integration. That is a separate upstream deployment profile requiring a Python server.
-- Authenticated sources still require the source's credentials, browser access, CORS, and permissions. In particular, the upstream default Brainmaps OAuth client origin allowlist does not automatically authorize a new Nokura origin; that backend needs suitable operator configuration.
-- Local annotations are local/in-state until state or annotation JSON is saved/exported. Remote writes depend on the native backend.
-- The pinned upstream defines five annotation geometry types; it does not define a separate polygon primitive.
-- This test volume is an image source. It alone cannot establish segmentation, mesh, skeleton, remote-write, or authenticated-backend behavior. Those require appropriate additional fixtures or sources.
-- Browser emulation is not a physical iOS/Android test and does not establish device memory limits, thermal behavior, Safari compatibility, or mobile network performance.
+- Tested in Chromium with touch emulation and software WebGL only. Physical iOS/Android, Safari, device memory and cellular performance are untested.
+- Not yet covered by touch tests: every segment filter and star action, backend-specific merge/split anchor tools, docking and drag reordering, arbitrary custom key bindings, and every property-entry tool.
+- Authenticated sources need their own credentials, CORS and permissions. For example, the default Brainmaps OAuth client doesn't authorize a new origin.
+- Local annotations live in the viewer state until it is exported or shared. Remote writes depend on the backend.
+- Upstream has five annotation geometry types; there is no polygon primitive.
+- Python-server integration is a separate upstream deployment mode and is not included.
 
 ## Source references
 

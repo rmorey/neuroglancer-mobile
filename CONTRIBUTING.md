@@ -1,53 +1,40 @@
-# Developing Neuroglancer Mobile
+# Contributing
 
-The mobile application is at the repository root. The initial development
-workspace also contained a separate lightweight XY prototype; that prototype
-is not part of this repository. The Nokura demo is a static build of this app.
+Keep changes in the shell (repository root) when you can. `vendor/neuroglancer/` is a snapshot of upstream source plus the patches in `patches/`. Edit it only through a patch recorded in `UPSTREAM.json`.
 
-## Relationship to upstream
+## Changing the engine
 
-`vendor/neuroglancer/` is a source snapshot of the commit in `UPSTREAM.json`.
-All default standalone datasource, worker, codec, and layer modules are kept.
-The mobile shell controls the same viewer and serializes the native state.
+1. Make the change in a separate Neuroglancer checkout at the pinned tree.
+2. Save the diff as `patches/NNNN-short-name.patch` and add an entry with its file(s) and reason to `UPSTREAM.json`.
+3. Apply it to `vendor/neuroglancer/`.
+4. Run `npm run check:engine`, `npm test` and `npm run test:browser`.
 
-The first Git commit imports the unmodified Google upstream snapshot. The following
-application commit adds the shell and applies the original three patches. The
-Spelunker integration replaces the snapshot with its pinned Seung Lab branch,
-then records the rebased fixes and setup/sharing adaptations as separate patches.
-This is a dedicated application repository rather than GitHub's fork network.
-To propose an upstream fix, apply the appropriate patch to a separate checkout
-of the repository and commit in `UPSTREAM.json` and test it there.
+If the fix belongs upstream, open a PR there from that checkout.
 
-Keep shell changes outside the vendor directory when possible. For an engine
-fix, add or update a patch and its `UPSTREAM.json` entry. When upgrading the
-engine, update the source snapshot and pin together, rebase the patches, and
-rerun both exact-value fixtures and touch/browser tests. Preserve upstream
-copyright and license notices.
+## Upgrading the engine
 
-## Checks
+```sh
+git clone https://github.com/seung-lab/neuroglancer.git ng && cd ng
+git remote add google https://github.com/google/neuroglancer.git && git fetch google
+git checkout -b mobile-engine origin/spelunker
+git log --oneline origin/spelunker..google/master   # Google fixes Spelunker lacks
+git cherry-pick -x <commits worth taking>           # record them in UPSTREAM.json
+git tag base-engine
+# Re-apply local patches, one commit each, resolving conflicts:
+for p in ../neuroglancer-mobile/patches/*.patch; do git apply --3way "$p" && git commit -qam "mobile: $(basename "$p" .patch)"; done
+```
 
-Use the locked Node dependencies and commands in `README.md`. `npm test`
-checks state and input handling. With the development server running,
-`npm run test:browser` runs seven suites, including the real MEC volume and
-synthetic image, segmentation, annotation, mesh, skeleton, and Zarr fixtures.
-Spelunker-specific checks use simulated Graphene/CAVE services for state sharing,
-authentication, historical segmentation, and proofreading tool behavior. They do
-not publish to a real state service or edit real segmentation.
-New artifacts belong in ignored `test-results/`; the committed `evidence/`
-files describe the previously qualified Nokura release.
+Then:
 
-CI runs the build and these checks in Chromium. Physical mobile devices and
-Safari are separate qualification targets; see `MOBILE-FEATURES.md` before
-making compatibility claims. CI does not publish or replace the Nokura demo.
+- `rsync -a --delete --exclude=.git --exclude=node_modules ./ ../neuroglancer-mobile/vendor/neuroglancer/`
+- Regenerate each patch with `git diff <commit>^ <commit>`.
+- Update `UPSTREAM.json`: set `commit`, `googleCherryPicks`, `sourceTree` (`git rev-parse base-engine^{tree}`), and any changed patch reasons.
+- Update the pin in `NOTICE`.
+- Check the shell against changed engine APIs, especially `default_viewer_setup.ts`. `main.js` repeats its setup steps.
+- Run all checks. The browser suites also cover the patched behavior.
 
-## Publishing
+## Tests
 
-Build to `dist/`, prepare a new dated release directory, and verify the exact
-assets before publication. Keep static JavaScript, CSS, workers, WebAssembly,
-license files, and other emitted assets together. An explicit `index.html`
-URL is required for the existing Nokura host. `DEPLOYMENT.md` records the
-previous release's hashes, checks, scope, and limitations.
+`npm test` covers state and input parsing. `npm run test:browser` needs `npm start` running and runs seven suites: real-volume rendering, synthetic image/segmentation/mesh/skeleton/annotation/Zarr fixtures, workspace state, touch keyboard, volume rendering, and Spelunker tools against simulated Graphene/CAVE services. `tests/generate-parity-fixtures.mjs` regenerates the fixtures with the vendored codecs.
 
-Use `RELEASE_DIR` and `EVIDENCE_DIR` when running `prepare-release.mjs` to create
-a new release and keep prior manifests intact. `verify-public.mjs` uses the same
-`EVIDENCE_DIR` and an explicit `BASE_URL` ending in the release directory slash.
+CI (`.github/workflows/verify.yml`) runs the type check, the unit tests, the build and the browser suites in Chromium. It does not publish.

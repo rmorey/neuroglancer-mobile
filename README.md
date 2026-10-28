@@ -1,57 +1,66 @@
 # Neuroglancer Mobile
 
-A mobile interface around the full Spelunker standalone Neuroglancer engine, pinned to Seung Lab's `spelunker` commit `d4aeac3b66eb4bd3fa86dbdc0202a7f006439740` (package version 2.41.2). This implementation uses its rendering, data sources, workers, codecs, layers, annotations, tools, authentication, and state serialization.
+A touch interface for [Neuroglancer](https://github.com/google/neuroglancer). It wraps the full standalone viewer from Seung Lab's [Spelunker](https://github.com/seung-lab/neuroglancer/tree/spelunker) branch, so every data source, layer type, shader, tool and state format still works. The mobile shell adds touch navigation, section controls, annotation tools, proofreading entry points and an on-screen keyboard.
 
-**[Open the Spelunker Mobile demo](https://c10s.pni.princeton.edu/web/neuroglancer-mobile/2026-09-15-spelunker-v3/index.html)** · [Verified release](DEPLOYMENT.md) · [Spelunker support](SPELUNKER.md)
+**[Open the viewer](https://c10s.pni.princeton.edu/web/neuroglancer-mobile/2026-10-28-spelunker-v4/index.html)**. Like stock Neuroglancer, it starts empty: add a layer, or open a link with a `#!` state.
 
-This is an independent repository for the mobile interface, with a vendored Spelunker engine. It is not an official Google or Seung Lab release. The exact source pin, original license, and compatibility patches are retained so engine updates and potential upstream contributions can be reviewed separately. See [CONTRIBUTING.md](CONTRIBUTING.md).
+## Using it
 
-The default volume is `precomputed://https://c10s.pni.princeton.edu/mec_alignment_2025-09/alignment/img/v2`. Data requests go directly from the browser to the source. No dataset conversion, proxy, or copy is needed.
+- **Navigate:** drag to pan, pinch to zoom, twist two fingers to rotate the slice. In 3D, drag to rotate. The bottom bar picks the layout and steps or plays through sections.
+- **Layers:** add any Neuroglancer source and open its native tabs (source, rendering, segments, annotations).
+- **Annotate:** point, line, box, ellipsoid and polyline tools, with numeric editing, properties, related segments and undo.
+- **Proofread:** Workspace → Spelunker tools for Graphene merge, multicut, find path, Time controls and annotation review. These drive Spelunker's own tools and need a Graphene/CAVE source and account.
+- **Workspace:** state import/export, saved views, settings, the command palette, the JSON editor and a touch keyboard for key bindings.
+- **Share:** a full `#!` URL, or a CAVE short link.
+- **Full controls:** shows the complete desktop Neuroglancer UI.
 
-## Use
+Feature details: [MOBILE-FEATURES.md](MOBILE-FEATURES.md) and [SPELUNKER.md](SPELUNKER.md).
 
-- Drag a slice with one finger to pan; pinch to zoom; rotate two fingers for oblique sections. Drag the 3D view to rotate.
-- Choose XY, XZ, YZ, 3D, four panels, or a combined view. The section controls and coordinate fields operate on native coordinates.
-- **Layers** adds any upstream source, controls visibility/order/opacity, and opens the full native source, rendering, segmentation, and schema tabs. Segment IDs stay exact through the full uint64 range.
-- **Annotate** provides point, line, box, ellipsoid, and polyline tools, numerical editing, descriptions, properties, related segments, move/delete, undo/redo, and JSON transfer. Choosing a tool leaves the canvas available; a compact toolbar provides Finish, Undo, and Cancel.
-- **Workspace** exposes state import/export, saved views, settings, selection details, the command palette, and the original state editor. **Share** produces native Neuroglancer URLs.
-- **Full controls** reveals the complete original interface. Native custom layouts, transforms, multidimensional data, shaders, mesh/skeleton controls, tool palettes, and datasource-specific operations remain available. Workspace also offers a touch keyboard with modifier keys, custom key codes, and primary/right-click actions at the selected viewer point.
+## Develop
 
-- **Workspace → Spelunker tools** provides touch entry points for Graphene merge, split/multicut, find path, and annotation review. Native Graph controls include historical Time and timestamp locks. The segment color picker and Spelunker's M/C/F and bracket shortcuts are enabled.
-- **Create CAVE short link** saves the complete workspace to Spelunker's configured state service. Ordinary Share retains a full URL without a server upload. Legacy Spelunker tags, shaders, tool bindings, and timestamps are migrated when loading state; short links retain this app's page path.
-
-Local annotations and saved views remain in viewer state or browser storage until exported/shared. Remote writes use the native backend's capabilities and permissions. The included MEC source is imagery; it does not supply a proofreading backend. Full engine inclusion is separate from verification on a particular service or physical mobile device. See [Spelunker support](SPELUNKER.md).
-
-## Reproduce
-
-Requires Node.js 22.18 or newer. Upstream dependencies and browser tests have committed lockfiles.
+Requires Node.js ≥ 22.18.
 
 ```sh
-cd neuroglancer-mobile
-(cd vendor/neuroglancer && npm ci --no-audit --no-fund)
-npm ci --no-audit --no-fund
-npm run build
-npm start
+(cd vendor/neuroglancer && npm ci)
+npm ci
+npm run build    # static app in dist/
+npm start        # http://127.0.0.1:4174/
 ```
 
-Open `http://127.0.0.1:4174/`. `dist/` is the complete static app. Serve `.wasm` as `application/wasm`, `.js` as JavaScript, and keep all relative assets together. Datasources must permit browser access and Range requests where their format requires it.
+`dist/` is a self-contained static site. The host must serve `.wasm` as `application/wasm`. Data sources must allow cross-origin browser access, and Range requests where the format needs them.
 
-The repository includes the engine source and application assets. Dependencies, generated bundles, and local browser profiles are excluded from Git. A fresh clone does not require a submodule checkout or files from the original development workspace.
-
-Compatibility fixes are recorded in [UPSTREAM.json](UPSTREAM.json) and [patches](patches/), including download cleanup, state rollback, canceled-touch reset, embedding setup, and short-link path preservation. The vendored source already includes those patches. Do not apply them twice. Apache-2.0 license and notices remain in the vendor tree and built app.
-
-## Verify
+## Test
 
 ```sh
-npm test
+npm run check:engine            # type-check the vendored engine
+npm test                        # unit tests
 npx playwright install chromium
-npm start
-# In another terminal:
-npm run test:browser
+npm start &                     # leave the server running
+npm run test:browser            # seven Chromium suites with touch emulation
 ```
 
-Browser scripts accept `BASE_URL`, `FIXTURE_BASE_URL`, and an optional `PLAYWRIGHT_MODULE` path. `AGENT_BROWSER_EXECUTABLE_PATH` selects an existing Chromium binary. New reports and screenshots go to ignored `test-results/`; `EVIDENCE_DIR` overrides that directory. Synthetic fixtures are committed in `tests/fixtures`; `tests/generate-parity-fixtures.mjs` regenerates them using the pinned upstream codec implementation. The local server exposes them at `/fixtures/` and supports byte ranges. The full browser suite also accesses the public MEC test volume and therefore requires network access.
+The browser suites use synthetic fixtures in `tests/fixtures/`, simulated Graphene/CAVE services, and one public MEC volume, which needs network access. `BASE_URL` points them at a deployed release. Reports go to `test-results/`.
 
-Evidence includes JSON test reports, screenshots of actual rendered content, exact sample values, HTTP Range checks, release hashes, and public deployment checks. See [MOBILE-FEATURES.md](MOBILE-FEATURES.md) for the capability map and [DEPLOYMENT.md](DEPLOYMENT.md) for the release receipt.
+The tests run in Chromium with touch emulation only. Real iOS/Android devices, Safari, and live CAVE editing are untested.
 
-The qualification target is the full standalone browser build. Python-server integration is a separate upstream deployment profile. Authenticated backends still need their credentials and accepted browser origin. Browser emulation does not establish physical iOS/Android compatibility or device memory/performance limits; the available host cannot launch WebKit because required system libraries are absent.
+## Layout
+
+| Path | Contents |
+| --- | --- |
+| `main.js`, `index.html`, `mobile.css` | Shell: boot, panels, navigation |
+| `annotations.js` | Annotation tools and editor |
+| `spelunker-controls.js` | Touch entry points for Spelunker proofreading tools |
+| `touch-keyboard.js` | On-screen keyboard and modified clicks |
+| `state.js` | Default state, legacy-link conversion, input validation |
+| `vendor/neuroglancer/` | Engine source snapshot (Apache-2.0) |
+| `UPSTREAM.json`, `patches/` | Engine pin, cherry-picks and local patches |
+| `build.mjs`, `serve.mjs` | Build and dev server |
+| `prepare-release.mjs`, `verify-public.mjs` | Release packaging and public hash checks |
+
+## Engine
+
+`vendor/neuroglancer/` is the Spelunker commit recorded in `UPSTREAM.json`, plus the Google Neuroglancer fixes listed there, with eight local patches already applied. Don't apply the patches again. To upgrade or contribute upstream, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+Releases are published to Nokura; see [DEPLOYMENT.md](DEPLOYMENT.md).
+
+Licensed under Apache-2.0; see [NOTICE](NOTICE) and [UPSTREAM-LICENSE](UPSTREAM-LICENSE).

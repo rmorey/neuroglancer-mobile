@@ -1,12 +1,6 @@
-# Spelunker support in Neuroglancer Mobile
+# Spelunker support
 
-The application includes the complete standalone Spelunker engine at commit
-`d4aeac3b66eb4bd3fa86dbdc0202a7f006439740`, matching the Spelunker branch and
-public deployment checked on 2026-09-15 UTC. `UPSTREAM.json` pins the source and
-records every local engine patch. No source adapter, renderer, layer type,
-codec, or worker is intentionally excluded from its default standalone build.
-
-## Features and mobile access
+The engine is Seung Lab's Spelunker branch (pinned in `UPSTREAM.json`) with its standard standalone build: CAVE state servers, custom key bindings and the segment-color widget. Nothing is excluded from it.
 
 | Spelunker feature | Access in this app |
 | --- | --- |
@@ -24,51 +18,14 @@ codec, or worker is intentionally excluded from its default standalone build.
 | Images, segmentation, meshes, skeletons, volume rendering, formats and transforms | All retained native functionality through Layers, Workspace and Full controls, alongside the existing mobile navigation and annotation editor. |
 | Dataset-specific Spelunker compatibility behavior | Placeholder-scale filtering, Graphene fragment paths, special GCS routing, manifest updates and other pinned source changes are retained with the full snapshot. |
 
-Ordinary Share creates a full viewer URL locally. Creating a CAVE short link
-uploads the workspace JSON to the configured state service only when the user
-presses that action. Remote dataset editing likewise uses native explicit tools
-and backend authorization. The default MEC image source is unchanged and does
-not itself provide segmentation proofreading.
+## Behavior notes
 
-## Compatibility fixes
+- Ordinary Share builds a full URL locally. **Create CAVE short link** uploads the state to the configured service, and only when pressed.
+- Starting a mobile annotation tool cancels any active proofreading tool, and vice versa. Cancel follows the native cleanup. It does not undo anything already submitted to the backend.
+- The shell reuses Spelunker's own state upgrader and key-binding setup; patch 0004 exports them for embedding. Patch 0005 keeps the app's subdirectory path in short links.
 
-The mobile shell uses exported Spelunker configuration rather than duplicating
-its state upgrader or custom-key binding rules. The patches also preserve state
-on failed URL/editor loads, clean up download links, reset canceled touches, and
-retain subdirectory paths in server-backed share links. Consult `UPSTREAM.json`
-for the exact patch files and additional lifecycle fixes.
+## Testing
 
-Starting a mobile annotation tool cancels the mobile proofreading activation;
-starting a proofreading tool cancels the mobile annotation tool and clears
-accessory modifiers. Canceling/closing a tool follows native cleanup and does
-not assert that any pending backend operation was undone. Native controls and
-tool state remain available for the full workflow.
+`tests/spelunker.browser.mjs` covers state migration, timestamps, Graphene tools, short links and MiddleAuth terms handling. `tests/spelunker-touch.browser.mjs` places real touch endpoints and submits merge, multicut and find-path operations. Both run against intercepted synthetic services and never write to a real CAVE dataset or state server.
 
-## Verification boundaries
-
-The existing five browser suites exercise real MEC imagery and deterministic
-image, segmentation, mesh, skeleton, annotation, Zarr, state, and touch fixtures.
-The sixth suite, `tests/spelunker.browser.mjs`, exercises Spelunker migration,
-timestamps, Graphene tools, short-state sharing, and authentication behavior
-using simulated services. It never submits changes to a real CAVE dataset or
-uploads a real workspace to a production state service.
-
-The seventh suite, `tests/spelunker-touch.browser.mjs`, places real touch
-endpoints/anchors and submits merge, multicut and path operations to intercepted
-synthetic services. It checks native Details, duplicate-submit prevention,
-drag behavior, and 44px phone/landscape controls.
-
-The [published release](DEPLOYMENT.md) passed all **88 browser checks** and all
-145 public file hashes. Engine typechecking, four state/input unit tests, and
-exact reproduction from the pristine source plus eight patches also passed.
-
-Those tests establish implementation behavior against controlled protocol
-fixtures. A particular live service still needs its account, permissions,
-origin/CORS settings, and representative data. Physical iOS/Android, Safari,
-mobile memory limits, cellular performance, and live authenticated merge/split
-are separate qualification targets. Python-server integration is a separate
-upstream deployment profile, not part of Spelunker's public standalone site.
-
-Exact successful release checks, hashes, and screenshots are recorded in the
-release receipt. The old Google-engine evidence remains historical and does not
-stand in for verification of the Spelunker build.
+Live merge/split on a real service still needs an account, permissions, CORS for this origin, and representative data.

@@ -11,6 +11,5 @@ release/
 *.key
 .DS_Store
 
-# Session artifacts stay local. Qualified release evidence is added explicitly.
+# Release receipts are added explicitly with git add -f.
 /evidence/*
-!/evidence/*.md
