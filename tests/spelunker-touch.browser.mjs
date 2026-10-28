@@ -19,7 +19,7 @@ const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PAT
 report.browser = browser.version();
 const context = await browser.newContext({ viewport: { width: 360, height: 800 }, hasTouch: true, isMobile: true, deviceScaleFactor: 1 });
 const page = await context.newPage(); page.setDefaultTimeout(15000);
-page.on('pageerror', error => report.errors.push(error.stack || error.message));
+page.on('pageerror', error => report.errors.push(`[${currentCase}] ${error.stack || error.message}`)); let currentCase = 'startup';
 
 // Layer-1 IDs are real uint64 base IDs; layer-2 IDs are root representatives.
 const leaves = [1n, 2n, 3n, 4n].map(id => String((1n << 56n) + id));
@@ -113,7 +113,7 @@ async function pickPoint(id) {
 }
 async function tapLeaf(id) { const point = await pickPoint(id); await page.touchscreen.tap(point.x, point.y); await frames(); return point; }
 async function run(name, action) {
-  const started = Date.now();
+  const started = Date.now(); currentCase = name;
   try { const details = await action(); report.cases.push({ name, passed: true, elapsedMs: Date.now() - started, details }); console.log(`PASS ${name}`); }
   catch (error) { report.cases.push({ name, passed: false, elapsedMs: Date.now() - started, error: error.stack }); console.error(`FAIL ${name}: ${error.message}`);
     await page.screenshot({ path: resolve(evidence, `${tag}-failure-${name}.png`) }).catch(() => {}); }

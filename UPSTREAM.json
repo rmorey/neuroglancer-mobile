@@ -67,6 +67,11 @@
       "file": "src/ui/layer_side_panel.ts",
       "patch": "patches/0008-layer-tab-disposal.patch",
       "reason": "Dispose the native tab view with its layer panel so Time and other cached tab controls cannot retain listeners or apply pending changes after the panel closes."
+    },
+    {
+      "file": "src/shared_disjoint_sets.ts",
+      "patch": "patches/0009-stale-disjoint-set-rpc.patch",
+      "reason": "Ignore segment-equivalence RPC updates that arrive after the object was disposed on this thread, instead of throwing an uncaught TypeError. Seen on slower CPUs when find-path state is replaced; unfixed upstream as of google/neuroglancer c8c4d139."
     }
   ]
 }

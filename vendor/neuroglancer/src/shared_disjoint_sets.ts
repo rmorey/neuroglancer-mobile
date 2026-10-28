@@ -160,15 +160,19 @@ export class SharedDisjointUint64Sets
   }
 }
 
+// Updates can arrive from the other thread after this side disposed the object
+// (for example when a layer or graph state is replaced); ignore them.
 registerRPC(ADD_METHOD_ID, function (x) {
-  const obj = <SharedDisjointUint64Sets>this.get(x.id);
+  const obj = <SharedDisjointUint64Sets | undefined>this.get(x.id);
+  if (obj === undefined) return;
   if (obj.disjointSets.link(x.a, x.b)) {
     obj.changed.dispatch();
   }
 });
 
 registerRPC(CLEAR_METHOD_ID, function (x) {
-  const obj = <SharedDisjointUint64Sets>this.get(x.id);
+  const obj = <SharedDisjointUint64Sets | undefined>this.get(x.id);
+  if (obj === undefined) return;
   if (obj.disjointSets.clear()) {
     obj.changed.dispatch();
   }
@@ -182,12 +186,14 @@ function updateHighBitRepresentative(obj: SharedDisjointUint64Sets) {
 }
 
 registerRPC(HIGH_BIT_REPRESENTATIVE_CHANGED_ID, function (x) {
-  const obj = this.get(x.id) as SharedDisjointUint64Sets;
+  const obj = this.get(x.id) as SharedDisjointUint64Sets | undefined;
+  if (obj === undefined) return;
   obj.disjointSets.visibleSegmentEquivalencePolicy.value = x.value;
 });
 
 registerRPC(DELETE_SET_METHOD_ID, function (x) {
-  const obj = <SharedDisjointUint64Sets>this.get(x.id);
+  const obj = <SharedDisjointUint64Sets | undefined>this.get(x.id);
+  if (obj === undefined) return;
   if (obj.disjointSets.deleteSet(x.x)) {
     obj.changed.dispatch();
   }

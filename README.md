@@ -59,7 +59,7 @@ The tests run in Chromium with touch emulation only. Real iOS/Android devices, S
 
 ## Engine
 
-`vendor/neuroglancer/` is the Spelunker commit recorded in `UPSTREAM.json`, plus the Google Neuroglancer fixes listed there, with eight local patches already applied. Don't apply the patches again. To upgrade or contribute upstream, see [CONTRIBUTING.md](CONTRIBUTING.md).
+`vendor/neuroglancer/` is the Spelunker commit recorded in `UPSTREAM.json`, plus the Google Neuroglancer fixes listed there, with nine local patches already applied. Don't apply the patches again. To upgrade or contribute upstream, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Releases are published to Nokura; see [DEPLOYMENT.md](DEPLOYMENT.md).
 
