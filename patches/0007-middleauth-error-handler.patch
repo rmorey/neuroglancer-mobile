@@ -1,27 +1,8 @@
---- a/src/credentials_provider/oauth2.ts
-+++ b/src/credentials_provider/oauth2.ts
-@@ -78,7 +78,8 @@
-     input,
-     init,
-     applyCredentials,
--    errorHandler,
-+    credentialsProvider.errorHandler?.bind(credentialsProvider) ??
-+      errorHandler,
-   );
- }
- 
-@@ -89,6 +90,7 @@
-   return fetchOkWithCredentialsAdapter(
-     credentialsProvider,
-     applyCredentials,
--    errorHandler,
-+    credentialsProvider.errorHandler?.bind(credentialsProvider) ??
-+      errorHandler,
-   );
- }
+diff --git a/src/credentials_provider/http_request.ts b/src/credentials_provider/http_request.ts
+index fda9ef67..368ce689 100644
 --- a/src/credentials_provider/http_request.ts
 +++ b/src/credentials_provider/http_request.ts
-@@ -77,7 +77,10 @@
+@@ -77,7 +77,10 @@ export function fetchOkWithCredentialsAdapter<Credentials>(
      credentials: Credentials,
      requestInit: RequestInit & { progressListener?: ProgressListener },
    ) => RequestInit & { progressListener?: ProgressListener },
@@ -33,9 +14,34 @@
  ): FetchOk {
    return (input, init = {}) =>
      fetchOkWithCredentials(
+diff --git a/src/credentials_provider/oauth2.ts b/src/credentials_provider/oauth2.ts
+index 3fee4084..1f68884f 100644
+--- a/src/credentials_provider/oauth2.ts
++++ b/src/credentials_provider/oauth2.ts
+@@ -78,7 +78,8 @@ export function fetchOkWithOAuth2Credentials(
+     input,
+     init,
+     applyCredentials,
+-    errorHandler,
++    credentialsProvider.errorHandler?.bind(credentialsProvider) ??
++      errorHandler,
+   );
+ }
+ 
+@@ -89,6 +90,7 @@ export function fetchOkWithOAuth2CredentialsAdapter(
+   return fetchOkWithCredentialsAdapter(
+     credentialsProvider,
+     applyCredentials,
+-    errorHandler,
++    credentialsProvider.errorHandler?.bind(credentialsProvider) ??
++      errorHandler,
+   );
+ }
+diff --git a/src/kvstore/middleauth/credentials_provider.ts b/src/kvstore/middleauth/credentials_provider.ts
+index 3e25dcb7..fb42eb86 100644
 --- a/src/kvstore/middleauth/credentials_provider.ts
 +++ b/src/kvstore/middleauth/credentials_provider.ts
-@@ -296,7 +296,10 @@
+@@ -296,7 +296,10 @@ export class MiddleAuthAppCredentialsProvider extends CredentialsProvider<Middle
        if (response) {
          const { headers } = response;
          const contentType = headers.get("content-type");

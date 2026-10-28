@@ -36,7 +36,10 @@ import { matchesTerms, matchPredicate } from "#src/ui/tool_query.js";
 import { animationFrameDebounce } from "#src/util/animation_frame_debounce.js";
 import type { Borrowed, Owned } from "#src/util/disposable.js";
 import { RefCounted } from "#src/util/disposable.js";
-import { getDropEffectFromModifiers } from "#src/util/drag_and_drop.js";
+import {
+  declareAllowedDropEffects,
+  getDropEffectFromModifiers,
+} from "#src/util/drag_and_drop.js";
 import type {
   ActionEvent,
   EventActionMap,
@@ -707,6 +710,7 @@ export class ToolBindingWidget<Context extends object> extends RefCounted {
     if (dragElement !== undefined) {
       dragElement.draggable = true;
       dragElement.addEventListener("dragstart", (event: DragEvent) => {
+        declareAllowedDropEffects(event, "copyMove");
         pushDragStatus(
           event,
           dragElement,
@@ -860,7 +864,13 @@ export function makeToolActivationStatusMessage(
   activation: ToolActivation,
   options: { showBindings?: boolean } = {},
 ) {
-  const message = activation.registerDisposer(new StatusMessage(false));
+  const message = activation.registerDisposer(
+    new StatusMessage(
+      /*delay=*/ false,
+      /*modal=*/ false,
+      /*insertAtBottom=*/ true,
+    ),
+  );
   message.element.classList.add("neuroglancer-tool-status");
   const content = document.createElement("div");
   content.classList.add("neuroglancer-tool-status-content");

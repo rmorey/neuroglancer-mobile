@@ -93,7 +93,10 @@ import {
 import { LayerSidePanelManager } from "#src/ui/layer_side_panel.js";
 import { setupPositionDropHandlers } from "#src/ui/position_drag_and_drop.js";
 import { ScreenshotDialog } from "#src/ui/screenshot_menu.js";
-import { SelectionDetailsPanel } from "#src/ui/selection_details.js";
+import {
+  copySelectionPositionToClipboard,
+  SelectionDetailsPanel,
+} from "#src/ui/selection_details.js";
 import { SidePanelManager } from "#src/ui/side_panel.js";
 import { StateEditorDialog } from "#src/ui/state_editor.js";
 import { StatisticsDisplayState, StatisticsPanel } from "#src/ui/statistics.js";
@@ -147,6 +150,7 @@ import { CheckboxIcon } from "#src/widget/checkbox_icon.js";
 import { makeCopyUrlButton } from "#src/widget/copy_button.js";
 import { makeIcon } from "#src/widget/icon.js";
 import {
+  copyPositionToClipboard,
   MousePositionWidget,
   PositionWidget,
   registerDimensionToolForLayerGroupViewer,
@@ -186,6 +190,7 @@ export const VIEWER_UI_CONTROL_CONFIG_OPTIONS = [
   ...VIEWER_TOP_ROW_CONFIG_OPTIONS,
   "showLayerPanel",
   "showLayerHoverValues",
+  "showPanelControls",
 ] as const;
 
 export const VIEWER_UI_CONFIG_OPTIONS = [
@@ -262,11 +267,15 @@ const defaultViewerOptions =
  * an override may hide a control the configuration permits but can never
  * reveal one the configuration disallows.
  *
- * Additional `VIEWER_UI_CONTROL_CONFIG_OPTIONS` members belong here as they
- * become user-toggleable, rather than as new top level state keys.
+ * Additional `VIEWER_UI_CONFIG_OPTIONS` members belong here as they become
+ * user-toggleable, rather than as new top level state keys.
  */
 class TrackableUiControlVisibility extends CompoundTrackable {
   showLayerPanel = new TrackableValue<boolean | undefined>(
+    undefined,
+    verifyOptionalBoolean,
+  );
+  showTopBar = new TrackableValue<boolean | undefined>(
     undefined,
     verifyOptionalBoolean,
   );
@@ -274,6 +283,7 @@ class TrackableUiControlVisibility extends CompoundTrackable {
   constructor() {
     super();
     this.add("showLayerPanel", this.showLayerPanel);
+    this.add("showTopBar", this.showTopBar);
   }
 
   toJSON(): any {
@@ -286,7 +296,15 @@ class TrackableUiControlVisibility extends CompoundTrackable {
   }
 }
 
-class TrackableViewerState extends CompoundTrackable {
+export class TrackableViewerState extends CompoundTrackable {
+  /**
+   * `reset()` dispatches this signal after it resets each member. A view that
+   * keeps UI state outside this trackable subscribes to this signal, so the
+   * state does not call the view. `Viewer.resetInitiated` is a different
+   * event, which the viewer dispatches when the layer list becomes empty.
+   */
+  stateReset = new NullarySignal();
+
   constructor(public viewer: Borrowed<Viewer>) {
     super();
     this.add("title", viewer.title);
@@ -413,7 +431,7 @@ class TrackableViewerState extends CompoundTrackable {
 
   reset() {
     super.reset();
-    this.viewer.sidePanelManager.reset();
+    this.stateReset.dispatch();
   }
 }
 
@@ -542,12 +560,14 @@ export class Viewer extends RefCounted implements ViewerState {
    * toggle in the layer list panel.
    */
   layerPanelVisibility: WatchableValueInterface<boolean>;
+  /** Effective top bar visibility: the configuration and the user override combined. */
+  effectiveShowTopBar: WatchableValueInterface<boolean>;
 
   private makeUiControlVisibilityState(
     key: (typeof VIEWER_UI_CONTROL_CONFIG_OPTIONS)[number],
   ) {
     const showUIControls = this.uiConfiguration.showUIControls;
-    const showTopBar = this.uiConfiguration.showTopBar;
+    const showTopBar = this.effectiveShowTopBar;
     const option = this.uiConfiguration[key];
     const isTopBarControl = (
       VIEWER_TOP_ROW_CONFIG_OPTIONS as readonly string[]
@@ -638,6 +658,19 @@ export class Viewer extends RefCounted implements ViewerState {
 
     const optionsWithDefaults = { ...defaultViewerOptions, ...options };
     const { resetStateWhenEmpty, showLayerDialog } = optionsWithDefaults;
+
+    // The top bar override, like the layer panel override below, may hide the
+    // top bar within what the configuration permits, but can never reveal one
+    // it disallows. Each top row control is derived from it, so hiding it hides
+    // the whole row.
+    this.effectiveShowTopBar = this.registerDisposer(
+      makeDerivedWatchableValue(
+        (configEnabled: boolean, override: boolean | undefined) =>
+          configEnabled && (override ?? true),
+        this.uiConfiguration.showTopBar,
+        this.uiControlVisibilityState.showTopBar,
+      ),
+    );
 
     for (const key of VIEWER_UI_CONTROL_CONFIG_OPTIONS) {
       this.uiControlVisibility[key] = this.makeUiControlVisibilityState(key);
@@ -761,6 +794,11 @@ export class Viewer extends RefCounted implements ViewerState {
     );
 
     this.state = new TrackableViewerState(this);
+    // Subscribe here and not in `makeUI()`, because `makeUI()` runs before
+    // the state exists.
+    this.registerDisposer(
+      this.state.stateReset.add(() => this.sidePanelManager.reset()),
+    );
 
     this.registerDisposer(
       new PlaybackManager(this.display, this.position, this.velocity),
@@ -976,15 +1014,7 @@ export class Viewer extends RefCounted implements ViewerState {
     {
       const button = makeCopyUrlButton({
         title: "Copy URL to clipboard",
-        onClick: () => {
-          const stateString = encodeStateAsFragment(this.state.toJSON());
-          const url = new URL(window.location.href);
-          url.hash = "#!" + stateString;
-          const result = setClipboard(url.href);
-          StatusMessage.showTemporaryMessage(
-            result ? "URL copied to clipboard" : "Failed to copy URL",
-          );
-        },
+        onClick: () => this.copyUrlToClipboard(),
       });
       this.registerDisposer(
         new ElementVisibilityFromTrackableBoolean(
@@ -1192,6 +1222,31 @@ export class Viewer extends RefCounted implements ViewerState {
     }
 
     this.bindAction("help", () => this.toggleHelpPanel());
+    this.bindAction("toggle-layer-list-panel", () => {
+      const { location } = this.layerListPanelState;
+      location.visible = !location.visible;
+    });
+    this.bindAction("toggle-selection-details-panel", () => {
+      const { location } = this.selectionDetailsState;
+      location.visible = !location.visible;
+    });
+    this.bindAction("toggle-settings-panel", () => {
+      const { location } = this.settingsPanelState;
+      location.visible = !location.visible;
+    });
+    this.bindAction("toggle-layer-side-panel", () => {
+      this.selectedLayer.visible = !this.selectedLayer.visible;
+    });
+    this.bindAction("new-tool-palette", () => {
+      this.toolPalettes.addNew();
+    });
+    this.bindAction("copy-url", () => this.copyUrlToClipboard());
+    this.bindAction("copy-position", () =>
+      copyPositionToClipboard(this.navigationState.position),
+    );
+    this.bindAction("copy-selection-position", () =>
+      copySelectionPositionToClipboard(this.selectionDetailsState),
+    );
 
     for (let i = 1; i <= 9; ++i) {
       this.bindAction(`toggle-layer-${i}`, () => {
@@ -1255,8 +1310,6 @@ export class Viewer extends RefCounted implements ViewerState {
     this.bindAction("deactivate-active-tool", () =>
       this.globalToolBinder.deactivate(),
     );
-    this.bindAction("edit-json-state", () => this.editJsonState());
-    this.bindAction("screenshot", () => this.showScreenshotDialog());
   }
 
   toggleHelpPanel() {
@@ -1322,6 +1375,16 @@ export class Viewer extends RefCounted implements ViewerState {
   showScreenshotDialog() {
     this.deactivateTools();
     new ScreenshotDialog(this.screenshotManager);
+  }
+
+  copyUrlToClipboard() {
+    const stateString = encodeStateAsFragment(this.state.toJSON());
+    const url = new URL(window.location.href);
+    url.hash = "#!" + stateString;
+    const result = setClipboard(url.href);
+    StatusMessage.showTemporaryMessage(
+      result ? "URL copied to clipboard" : "Failed to copy URL",
+    );
   }
 
   showStatistics(value: boolean | undefined = undefined) {

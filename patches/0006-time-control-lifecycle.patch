@@ -1,6 +1,8 @@
+diff --git a/src/datasource/graphene/frontend.ts b/src/datasource/graphene/frontend.ts
+index ee9482f2..c2696430 100644
 --- a/src/datasource/graphene/frontend.ts
 +++ b/src/datasource/graphene/frontend.ts
-@@ -1943,7 +1943,11 @@
+@@ -1938,7 +1938,11 @@ class GrapheneGraphServerInterface {
        (response) => response.json(),
      );
      const isoString = verifyObjectProperty(response, "iso", verifyString);
@@ -13,7 +15,7 @@
    }
  
    async getRoot(segment: bigint, timestamp = 0) {
-@@ -2111,9 +2115,19 @@
+@@ -2106,9 +2110,19 @@ class GrapheneGraphSource extends SegmentationGraphSource {
        url,
      );
      this.graphServer = new GrapheneGraphServerInterface(this.httpSource);
@@ -36,7 +38,7 @@
    }
  
    connect(
-@@ -2576,7 +2590,7 @@
+@@ -2571,7 +2585,7 @@ registerLayerControl(SegmentationUserLayer, timeControl);
  
  function timeLayerControl(): LayerControlFactory<SegmentationUserLayer> {
    return {
@@ -45,7 +47,7 @@
        const segmentationGroupState =
          layer.displayState.segmentationGroupState.value;
        const {
-@@ -2600,49 +2614,76 @@
+@@ -2595,49 +2609,76 @@ function timeLayerControl(): LayerControlFactory<SegmentationUserLayer> {
        const intermediateTimestamp = new WatchableValue<number | undefined>(
          timestamp.value,
        );
@@ -107,6 +109,9 @@
 +          try {
 +            const selfLock = segmentationGroupState.timestampOwner.has(
 +              layer.managedLayer.name,
++            );
++            const canSetTimestamp = segmentationGroupState.canSetTimestamp(
++              layer.managedLayer.name,
              );
 -            if (
 -              !nonLatestRoots.length ||
@@ -118,9 +123,6 @@
 -              // is this where it is done
 -              timestampOwner.add(layer.managedLayer.name);
 -              return;
-+            const canSetTimestamp = segmentationGroupState.canSetTimestamp(
-+              layer.managedLayer.name,
-+            );
 +            // A lock while timestamp is unset belongs to an editing tool.
 +            if (canSetTimestamp && (!selfLock || timestamp.value !== undefined)) {
 +              const nonLatestRoots = await graph.graphServer.filterLatestRoots(
@@ -162,7 +164,7 @@
        const widget = context.registerDisposer(
          new DateTimeInputWidget(
            intermediateTimestamp,
-@@ -2650,14 +2691,19 @@
+@@ -2645,14 +2686,19 @@ function timeLayerControl(): LayerControlFactory<SegmentationUserLayer> {
            new Date(),
          ),
        );

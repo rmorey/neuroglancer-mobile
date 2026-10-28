@@ -1,6 +1,8 @@
+diff --git a/src/ui/default_viewer_setup.ts b/src/ui/default_viewer_setup.ts
+index 15420915..47fef603 100644
 --- a/src/ui/default_viewer_setup.ts
 +++ b/src/ui/default_viewer_setup.ts
-@@ -226,10 +226,10 @@
+@@ -229,10 +229,10 @@ export function convertLegacyAnnotationTags(layer: any) {
  }
  
  /**
@@ -8,21 +10,21 @@
 + * Installs Spelunker's input bindings and state migration on an existing viewer.
 + * Embedders must call this before restoring state or constructing UrlHashBinding.
   */
--export function setupDefaultViewer() {
--  const viewer = ((<any>window).viewer = makeDefaultViewer());
+-export function setupDefaultViewer(options?: Partial<MinimalViewerOptions>) {
+-  const viewer = ((<any>window).viewer = makeDefaultViewer(options));
 +export function configureDefaultViewer(viewer: Viewer) {
    setDefaultInputEventBindings(viewer.inputEventBindings);
    if (hasCustomBindings) {
      setCustomInputEventBindings(viewer, NEUROGLANCER_CUSTOM_INPUT_BINDINGS!);
-@@ -262,6 +262,12 @@
+@@ -265,6 +265,12 @@ export function setupDefaultViewer(options?: Partial<MinimalViewerOptions>) {
      }
      return state;
    };
 +}
 +
 +/** Sets up the default neuroglancer viewer. */
-+export function setupDefaultViewer() {
-+  const viewer = ((<any>window).viewer = makeDefaultViewer());
++export function setupDefaultViewer(options?: Partial<MinimalViewerOptions>) {
++  const viewer = ((<any>window).viewer = makeDefaultViewer(options));
 +  configureDefaultViewer(viewer);
  
    const hashBinding = viewer.registerDisposer(

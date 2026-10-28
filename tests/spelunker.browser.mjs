@@ -86,6 +86,15 @@ function assertMigrated(value) {
   assert.equal(review.annotations[0].props[0], true);
   return { timestamp: segments.timestamp, properties: review.annotationProperties, tool: review.toolBindings.Q };
 }
+// waitForFunction does not await an async predicate, and upstream now copies through a
+// deferred ClipboardItem, so poll and keep the text that matched.
+async function clipboardContaining(needle, timeout = 10000) {
+  for (const end = Date.now() + timeout; Date.now() < end; await page.waitForTimeout(100)) {
+    const text = await page.evaluate(() => navigator.clipboard.readText());
+    if (text.includes(needle)) return text;
+  }
+  throw new Error(`Clipboard never contained ${needle}`);
+}
 async function test(name, action) {
   const start = Date.now();
   try { const details = await action(); report.cases.push({ name, passed: true, elapsedMs: Date.now() - start, details }); console.log(`PASS ${name}`); }
@@ -379,8 +388,7 @@ try {
     await page.evaluate(() => { const url = new URL(location.href); url.searchParams.set('share-test', 'retained'); history.replaceState(null, '', url); });
     await page.evaluate(() => navigator.clipboard.writeText(''));
     await page.evaluate(() => neuroglancerMobile.shareShort());
-    await page.waitForFunction(async () => (await navigator.clipboard.readText()).includes('/nglstate/api/v1/42'));
-    const link = await page.evaluate(() => navigator.clipboard.readText());
+    const link = await clipboardContaining('/nglstate/api/v1/42');
     assert.equal(new URL(link).pathname, documentURL.pathname);
     assert.equal(new URL(link).searchParams.get('share-test'), 'retained');
     assert.ok(link.includes('#!middleauth+https://global.daf-apis.com/nglstate/api/v1/42'));
@@ -399,7 +407,7 @@ try {
     const popup = await popupPromise; await popup.waitForLoadState();
     assert.equal(new URL(popup.url()).searchParams.get('client'), 'ng');
     await popup.getByRole('button', { name: 'Accept synthetic terms', exact: true }).click();
-    await page.waitForFunction(async () => (await navigator.clipboard.readText()).includes('/nglstate/api/v1/42'));
+    await clipboardContaining('/nglstate/api/v1/42');
     assert.equal(statePosts.length, 2); assert.ok(statePosts.every(request => request.authorization));
     requireTos = false; return { requests: statePosts.length, termsAccepted: true };
   });

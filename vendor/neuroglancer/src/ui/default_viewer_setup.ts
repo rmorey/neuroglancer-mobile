@@ -32,6 +32,9 @@ import {
 import { registerDefaultCommands } from "#src/ui/default_commands.js";
 import { setDefaultInputEventBindings } from "#src/ui/default_input_event_bindings.js";
 import { makeDefaultViewer } from "#src/ui/default_viewer.js";
+import type { MinimalViewerOptions } from "#src/ui/minimal_viewer.js";
+import { bindScreenshotDialog } from "#src/ui/screenshot_menu.js";
+import { bindStateEditor } from "#src/ui/state_editor.js";
 import { bindTitle } from "#src/ui/title.js";
 import type { Tool } from "#src/ui/tool.js";
 import { restoreTool } from "#src/ui/tool.js";
@@ -265,8 +268,8 @@ export function configureDefaultViewer(viewer: Viewer) {
 }
 
 /** Sets up the default neuroglancer viewer. */
-export function setupDefaultViewer() {
-  const viewer = ((<any>window).viewer = makeDefaultViewer());
+export function setupDefaultViewer(options?: Partial<MinimalViewerOptions>) {
+  const viewer = ((<any>window).viewer = makeDefaultViewer(options));
   configureDefaultViewer(viewer);
 
   const hashBinding = viewer.registerDisposer(
@@ -300,6 +303,8 @@ export function setupDefaultViewer() {
   bindDefaultPasteHandler(viewer);
   registerDefaultCommands(viewer.commandRegistry);
   bindCommandPalette(viewer);
+  bindStateEditor(viewer);
+  bindScreenshotDialog(viewer);
 
   return viewer;
 }

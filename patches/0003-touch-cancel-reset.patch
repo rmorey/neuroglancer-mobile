@@ -1,6 +1,8 @@
+diff --git a/src/util/touch_bindings.ts b/src/util/touch_bindings.ts
+index 7adead3a..cf784e47 100644
 --- a/src/util/touch_bindings.ts
 +++ b/src/util/touch_bindings.ts
-@@ -174,6 +174,25 @@
+@@ -174,6 +174,25 @@ export class TouchEventBinder<
    private tapEndTime = 0;
    private curTapNumTouches = 0;
  
@@ -26,7 +28,7 @@
    private handleTouchEvent(event: TouchEvent) {
      if (event.target === this.target) {
        event.preventDefault();
-@@ -358,6 +377,9 @@
+@@ -358,6 +377,9 @@ export class TouchEventBinder<
      this.registerEventListener(target, "touchend", (event: TouchEvent) => {
        this.handleTouchEvent(event);
      });

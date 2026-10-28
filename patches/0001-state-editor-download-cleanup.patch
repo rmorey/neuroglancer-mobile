@@ -1,15 +1,17 @@
+diff --git a/src/ui/state_editor.ts b/src/ui/state_editor.ts
+index 85a656b3..34eded55 100644
 --- a/src/ui/state_editor.ts
 +++ b/src/ui/state_editor.ts
-@@ -28,6 +28,8 @@
- import CodeMirror from "codemirror";
+@@ -29,6 +29,8 @@ import CodeMirror from "codemirror";
  import { debounce } from "lodash-es";
  import { Overlay } from "#src/overlay.js";
+ import { ActionCommand } from "#src/ui/command.js";
 +import { StatusMessage } from "#src/status.js";
 +import { restoreStateWithRollback } from "#src/ui/url_hash_binding.js";
  import "#src/ui/state_editor.css";
  
  import { bigintToStringJsonReplacer } from "#src/util/json.js";
-@@ -87,16 +89,30 @@
+@@ -88,16 +90,30 @@ export class StateEditorDialog extends Overlay {
      const blobUrl = URL.createObjectURL(blob);
      downloadLink.href = blobUrl;
      downloadLink.download = "state.json";

@@ -1,6 +1,8 @@
+diff --git a/src/ui/layer_side_panel.ts b/src/ui/layer_side_panel.ts
+index ffa860dd..5559b9a4 100644
 --- a/src/ui/layer_side_panel.ts
 +++ b/src/ui/layer_side_panel.ts
-@@ -301,6 +301,7 @@
+@@ -303,6 +303,7 @@ class LayerSidePanel extends SidePanel {
        },
        this.visibility,
      );

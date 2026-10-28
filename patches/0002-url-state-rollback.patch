@@ -1,6 +1,8 @@
+diff --git a/src/ui/url_hash_binding.ts b/src/ui/url_hash_binding.ts
+index fcd6683b..472a5751 100644
 --- a/src/ui/url_hash_binding.ts
 +++ b/src/ui/url_hash_binding.ts
-@@ -54,6 +54,39 @@
+@@ -54,6 +54,39 @@ export interface UrlHashBindingOptions {
    upgradeState?: (state: any) => any;
  }
  
@@ -40,7 +42,7 @@
  /**
   * An instance of this class manages a binding between a Trackable value and the URL hash state.
   * The binding is initialized in the constructor, and is removed when dispose is called.
-@@ -140,9 +173,12 @@
+@@ -140,9 +173,12 @@ export class UrlHashBinding extends RefCounted {
              .read(url, { throwIfMissing: true })
              .then((response) => response.response.json())
              .then((json) => {
@@ -56,7 +58,7 @@
              }),
            {
              initialMessage: `Loading state from ${url}`,
-@@ -154,8 +190,7 @@
+@@ -154,8 +190,7 @@ export class UrlHashBinding extends RefCounted {
          // Firefox always %-encodes the URL even if it is not typed that way.
          s = decodeURIComponent(s);
          const state = urlSafeParse(s);
@@ -66,7 +68,7 @@
          this.prevStateString = undefined;
        } else if (s.startsWith("#!")) {
          s = s.slice(2);
-@@ -163,11 +198,9 @@
+@@ -163,11 +198,9 @@ export class UrlHashBinding extends RefCounted {
          if (s === this.prevStateString) {
            return;
          }

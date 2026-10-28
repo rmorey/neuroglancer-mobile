@@ -84,6 +84,7 @@ import {
   parseShaderUiControls,
   setControlsInShader,
   ShaderControlState,
+  stripComments,
 } from "#src/webgl/shader_ui_controls.js";
 import {
   computeTextureFormat,
@@ -181,6 +182,10 @@ highp uint vertexIndex = aVertexIndex.x * (1u - lineEndpointIndex) + aVertexInde
 vec4 segmentColor() {
   return uColor;
 }
+void emitRGBA(vec4 color) {
+  color.a *= uColor.a;
+  emit(vec4(color.rgb * color.a, color.a * getLineAlpha() * ${this.getCrossSectionFadeFactor()}), uPickID);
+}
 void emitRGB(vec3 color) {
   emit(vec4(color * uColor.a, uColor.a * getLineAlpha() * ${this.getCrossSectionFadeFactor()}), uPickID);
 }
@@ -248,14 +253,18 @@ vec4 segmentColor() {
   return uColor;
 }
 void emitRGBA(vec4 color) {
+  color.a *= uColor.a;
+  color.rgb *= color.a;
   vec4 borderColor = color;
-  emit(getCircleColor(color, borderColor), uPickID);
+  vec4 circleColor = getCircleColor(color, borderColor);
+  emit(circleColor, uPickID);
 }
 void emitRGB(vec3 color) {
   emitRGBA(vec4(color, 1.0));
 }
 void emitDefault() {
-  emitRGBA(uColor);
+  vec4 circleColor = getCircleColor(uColor, uColor);
+  emit(circleColor, uPickID);
 }
 `);
           builder.addFragmentCode(glsl_COLORMAPS);
@@ -589,6 +598,7 @@ export class SkeletonLayer extends RefCounted {
 
     edgeShader.bind();
     renderHelper.beginLayer(gl, edgeShader, renderContext, modelMatrix);
+    shaderControlState.activeControls.trackShader(edgeShaderResult, attachment);
     setControlsInShader(
       gl,
       edgeShader,
@@ -600,6 +610,7 @@ export class SkeletonLayer extends RefCounted {
     nodeShader.bind();
     renderHelper.beginLayer(gl, nodeShader, renderContext, modelMatrix);
     gl.uniform1f(nodeShader.uniform("uNodeDiameter"), pointDiameter);
+    shaderControlState.activeControls.trackShader(nodeShaderResult, attachment);
     setControlsInShader(
       gl,
       nodeShader,
@@ -701,7 +712,13 @@ export class PerspectiveViewSkeletonLayer extends PerspectiveViewRenderLayer {
   }
 
   get isTransparent() {
-    return this.base.displayState.objectAlpha.value < 1.0;
+    const { displayState } = this.base;
+    return (
+      displayState.objectAlpha.value < 1.0 ||
+      stripComments(
+        displayState.skeletonRenderingOptions.shader.value,
+      ).includes("emitRGBA")
+    );
   }
 
   draw(

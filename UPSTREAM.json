@@ -1,10 +1,26 @@
 {
   "repository": "https://github.com/seung-lab/neuroglancer",
   "branch": "spelunker",
-  "commit": "d4aeac3b66eb4bd3fa86dbdc0202a7f006439740",
-  "sourceTree": "186635b6f19b414570972714d6ca0208927750c1",
+  "commit": "48b879ce82c819c614e712d69a7731c4f48e9180",
+  "sourceTree": "e38270f37af4c2d4a4e819e301c9ac16cf26e05f",
   "version": "2.41.2",
   "license": "Apache-2.0",
+  "googleBase": {
+    "repository": "https://github.com/google/neuroglancer",
+    "commit": "ca5cd35b3ca5e0dd8d5b6fe949ec6dee9b811b34"
+  },
+  "googleCherryPicks": {
+    "repository": "https://github.com/google/neuroglancer",
+    "commits": [
+      "55f2fa501f20f79fa8a9cbe1ef00a394ee7e22e1",
+      "6c31aedcc59827ffe16b7b287f07af4e5a7f3d7a",
+      "9aacd4422e2db42eca9afbbac341069d82841818",
+      "cec37228c70281c10becad90d2d3869d94c9e575",
+      "bcecdb0cbb877191e20cfa358803f6e7547583c2",
+      "c8c4d139ac7ed4e4bf8de09a7f5242ba8d1cbca0"
+    ],
+    "note": "Applied with git cherry-pick -x onto the Spelunker commit, bringing the engine level with google/neuroglancer master c8c4d139 (2026-10-28). 8a4d0844 and a9513e6a were already cherry-picked by Spelunker; src/skeleton/frontend.ts was then aligned with master because Spelunker's copy of the ANGLE fix predates the RGBA change. sourceTree is the tree after these picks and before local patches."
+  },
   "profile": "Spelunker standalone browser with its state servers, custom input bindings, and segment color widget; no datasource, kvstore, or layer exclusion conditions",
   "sourceDirectory": "vendor/neuroglancer",
   "upstreamModifications": [
@@ -31,7 +47,7 @@
     {
       "file": "src/datasource/state_share.ts",
       "patch": "patches/0005-state-share-subpath.patch",
-      "reason": "Preserve the deployed viewer pathname and query in short links and include clipboard failures in the share error handler."
+      "reason": "Preserve the deployed viewer pathname and query in short links. Clipboard failures are handled upstream since google/neuroglancer da443d25 (Safari clipboard fix with a manual-copy fallback)."
     },
     {
       "file": "src/datasource/graphene/frontend.ts",

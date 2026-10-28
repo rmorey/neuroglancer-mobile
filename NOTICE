@@ -5,7 +5,8 @@ This project includes Neuroglancer and Seung Lab's Spelunker modifications,
 Copyright Google Inc./Google LLC and contributors, licensed under the Apache
 License, Version 2.0.
 Upstream: https://github.com/seung-lab/neuroglancer (spelunker branch)
-Pinned commit: d4aeac3b66eb4bd3fa86dbdc0202a7f006439740
+Pinned commit: 48b879ce82c819c614e712d69a7731c4f48e9180
+Plus google/neuroglancer fixes through c8c4d139 (see UPSTREAM.json).
 
 Original copyright and license notices remain in vendor/neuroglancer.
 That directory also contains third-party components with their own notices.

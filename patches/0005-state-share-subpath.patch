@@ -1,15 +1,16 @@
+diff --git a/src/datasource/state_share.ts b/src/datasource/state_share.ts
+index 6d299bac..fa6d6da8 100644
 --- a/src/datasource/state_share.ts
 +++ b/src/datasource/state_share.ts
-@@ -104,8 +104,10 @@
-               stateUrlProtcol.length,
-             );
-             const protocol = new URL(selectedStateServer).protocol;
--            const link = `${window.location.origin}/#!${protocol}${stateUrlWithoutProtocol}`;
--            navigator.clipboard.writeText(link).then(() => {
-+            // Embedded deployments may live under a versioned subdirectory.
-+            const link = new URL(window.location.href);
-+            link.hash = `!${protocol}${stateUrlWithoutProtocol}`;
-+            return navigator.clipboard.writeText(link.href).then(() => {
-               StatusMessage.showTemporaryMessage(
-                 "Share link copied to clipboard",
-               );
+@@ -127,7 +127,10 @@ export class StateShare extends RefCounted {
+           const stateUrlProtcol = new URL(res).protocol;
+           const stateUrlWithoutProtocol = res.substring(stateUrlProtcol.length);
+           const protocol = new URL(selectedStateServer).protocol;
+-          return `${window.location.origin}/#!${protocol}${stateUrlWithoutProtocol}`;
++          // Embedded deployments may live under a versioned subdirectory.
++          const link = new URL(window.location.href);
++          link.hash = `!${protocol}${stateUrlWithoutProtocol}`;
++          return link.href;
+         });
+ 
+       StatusMessage.forPromise(

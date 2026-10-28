@@ -1,8 +1,0 @@
-2026/09/13 22:20:58 NOTICE: S3 bucket web path neuroglancer-mobile/2026-09-13-v2: 0 differences found
-2026/09/13 22:20:58 NOTICE: S3 bucket web path neuroglancer-mobile/2026-09-13-v2: 145 matching files
-2026/09/13 22:20:58 INFO  : 
-Transferred:   	   11.207 MiB / 11.207 MiB, 100%, 0 B/s, ETA -
-Checks:               145 / 145, 100%, Listed 360
-Transferred:          145 / 145, 100%
-Elapsed time:         0.5s
-
