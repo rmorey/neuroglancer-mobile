@@ -1,80 +1,45 @@
-# Neuroglancer Mobile — Spelunker release
+# Deployment
 
-**[Open the Spelunker Mobile demo](https://c10s.pni.princeton.edu/web/neuroglancer-mobile/2026-09-15-spelunker-v3/index.html)**
+Releases are immutable, dated directories on Nokura under `nokura:web/neuroglancer-mobile/`, served publicly from `https://c10s.pni.princeton.edu/web/neuroglancer-mobile/`. Always link the explicit `index.html`; the directory URL returns 404.
 
-Use the explicit `index.html` URL. This immutable release includes the complete
-pinned Spelunker standalone engine, its deployment configuration, and the mobile
-controls. The default MEC source remains exactly
-`precomputed://https://c10s.pni.princeton.edu/mec_alignment_2025-09/alignment/img/v2`.
-There is no MEC conversion, proxy, or dataset copy.
+## Current release
 
-| Identity | Value |
+**[2026-10-28-spelunker-v4](https://c10s.pni.princeton.edu/web/neuroglancer-mobile/2026-10-28-spelunker-v4/index.html)**
+
+| | |
 | --- | --- |
-| App version | 1.1.0 |
-| Spelunker source | `seung-lab/neuroglancer`, branch `spelunker`, commit `d4aeac3b66eb4bd3fa86dbdc0202a7f006439740` |
-| Source package version | 2.41.2 |
-| Built | 2026-09-15 02:31:42 UTC |
-| Published | 2026-09-15 02:34:46 UTC |
-| Nokura prefix | `nokura:web/neuroglancer-mobile/2026-09-15-spelunker-v3` |
-| Main asset | `main.e2534759721a6932.js` |
-| Files / bytes | 145 / 5,905,904 |
-| Engine deviations | Eight recorded compatibility patches, ten source files; exact pristine-plus-patches comparison passed |
+| App version | 1.2.0 |
+| Engine | Spelunker `48b879ce` + Google fixes through `c8c4d139` (see `UPSTREAM.json`) |
+| Files | 145 (5,913,694 bytes), including `fixtures/` for the browser tests |
+| Upload | `rclone copy --immutable --checksum`; `rclone check --one-way --download`: 145 matching, 0 differences |
+| Public check | 145/145 SHA-256 hashes, sizes and JS/WASM MIME types over HTTPS |
+| Browser suites against the live URL | 89/89 passed, no page errors (Chromium 153, touch emulation, software WebGL) |
 
-The new engine includes Spelunker's Graphene proofreading, historical Time,
-annotation properties and migration, CAVE sharing/authentication, custom bindings,
-segment-color widget, and all default standalone data/rendering modules. See
-[SPELUNKER.md](SPELUNKER.md) for entry points and qualification boundaries.
+Changes since v3: opens empty like stock Neuroglancer, engine rebased, and shell fixes (see git log). Receipts are in [`evidence/2026-10-28-spelunker-v4/`](evidence/2026-10-28-spelunker-v4/).
 
-## Publication evidence
+Not covered: physical iOS/Android devices, Safari, and live CAVE editing.
 
-`rclone copy --immutable --checksum` created the release. `rclone check --one-way
---download` verified 145 files with zero differences. Independent public HTTPS
-requests verified **145/145 SHA-256 hashes**, sizes, and relevant JS/WASM MIME types.
+## Previous releases
 
-Receipts: [manifest](evidence/spelunker-v3/release-manifest.json),
-[SHA-256 list](evidence/spelunker-v3/release-sha256.txt),
-[upload](evidence/spelunker-v3/nokura-upload.log),
-[download comparison](evidence/spelunker-v3/nokura-check.log),
-[public verification](evidence/spelunker-v3/public-verification.json).
+These stay live at their URLs. Their receipts are in git history.
 
-## Browser verification
+| Release | Notes |
+| --- | --- |
+| [2026-09-15-spelunker-v3](https://c10s.pni.princeton.edu/web/neuroglancer-mobile/2026-09-15-spelunker-v3/index.html) | First Spelunker engine; opens the MEC volume |
+| [2026-09-13-v2](https://c10s.pni.princeton.edu/web/neuroglancer-mobile/2026-09-13-v2/index.html) | Google Neuroglancer engine |
+| 2026-09-12-v1 | Original lightweight prototype |
 
-All **88 checks** passed locally and against this exact public release in
-Chromium 153 with emulated touch/software WebGL. No suite reported an uncaught
-page error. Editing/authentication protocol tests intercept synthetic services;
-they do not write to a production CAVE dataset or state server.
+## Publishing a release
 
-| Suite | Passed | Public receipt |
-| --- | ---: | --- |
-| Real MEC, data formats, objects, native layouts, annotation gestures and state | 31 | [Viewer](evidence/spelunker-v3/viewer.json) |
-| Local annotation geometry/properties/relations/undo/import | 8 | [Annotations](evidence/spelunker-v3/annotations.json) |
-| Workspace, state, bookmarks, downloads, multidimensional navigation | 9 | [Workspace](evidence/spelunker-v3/workspace.json) |
-| Touch keyboard and modified pointer actions | 6 | [Keyboard](evidence/spelunker-v3/keyboard.json) |
-| Volume rendering, shaders, opacity, 3D/oblique touch rotation | 6 | [Volume](evidence/spelunker-v3/volume.json) |
-| Spelunker migration, timestamps, native controls, authentication and short links | 22 | [Spelunker](evidence/spelunker-v3/spelunker.json) |
-| Actual touch merge/split/path endpoints, submissions, native controls and sizing | 6 | [Proofreading touch](evidence/spelunker-v3/proofreading-touch.json) |
+```sh
+R=YYYY-MM-DD-name
+npm run build
+RELEASE_DIR=release/$R EVIDENCE_DIR=evidence/$R node prepare-release.mjs
+rclone copy --immutable --checksum release/$R nokura:web/neuroglancer-mobile/$R
+rclone check release/$R nokura:web/neuroglancer-mobile/$R --one-way --download
+B=https://c10s.pni.princeton.edu/web/neuroglancer-mobile/$R/
+BASE_URL=$B EVIDENCE_DIR=evidence/$R node verify-public.mjs
+BASE_URL=${B}index.html FIXTURE_BASE_URL=${B}fixtures EVIDENCE_DIR=evidence/$R EVIDENCE_TAG=public npm run test:browser
+```
 
-[Verification summary](evidence/spelunker-v3/verification.json).
-The engine typecheck and four state/input unit tests also passed. Source patches
-were applied independently to a pristine Spelunker archive; the result matched
-all vendored source files exactly, excluding the dependency directory.
-
-Visual evidence: [MEC phone](evidence/spelunker-v3/mec-phone.png),
-[proofreading phone](evidence/spelunker-v3/proofreading-phone.png),
-[proofreading landscape](evidence/spelunker-v3/proofreading-landscape.png),
-[annotation summary](evidence/spelunker-v3/annotation-summary.png).
-
-The new regressions exposed and verified fixes for short-link paths, unreachable
-terms handling, Time control lifecycle, native tab disposal, playback during
-state imports, and merge preview panels obstructing phone canvas gestures.
-
-## Limits and prior releases
-
-Full engine inclusion is not proof of every workflow on every service/device.
-Live authenticated CAVE merge/split still requires representative data, account
-permissions, origin/CORS configuration and service qualification. Physical iOS,
-Android, Safari, device memory/thermal limits and cellular performance remain
-unqualified. Python-server integration is a separate upstream profile.
-
-The [Google-engine v2 release and all its evidence](DEPLOYMENT-GOOGLE-V2.md) remain
-preserved. Existing immutable links continue to load that historical version.
+Commit the manifest, hash list, rclone logs, public verification and JSON reports with `git add -f evidence/$R/...`, then update this file.

@@ -1,0 +1,131 @@
+
+> neuroglancer-mobile@1.2.0 test:browser
+> node tests/full-browser.mjs && node tests/annotation-editor.browser.mjs && node tests/workspace.browser.mjs && node tests/touch-keyboard.browser.mjs && node tests/volume-rendering.browser.mjs && node tests/spelunker.browser.mjs && node tests/spelunker-touch.browser.mjs
+
+RUN default-opens-empty
+PASS default-opens-empty
+RUN live-mec-upstream-engine
+PASS live-mec-upstream-engine
+RUN image-uint8
+PASS image-uint8
+RUN image-uint16
+PASS image-uint16
+RUN image-float32
+PASS image-float32
+RUN offset-and-truncated-edge-chunks
+PASS offset-and-truncated-edge-chunks
+RUN sharded-http-range
+PASS sharded-http-range
+RUN segmentation-uint64
+PASS segmentation-uint64
+RUN compressed-segmentation-uint64
+PASS compressed-segmentation-uint64
+RUN mesh-skeleton-properties-3d
+PASS mesh-skeleton-properties-3d
+RUN zarr-v2-uint16
+PASS zarr-v2-uint16
+RUN zarr-v3-uint16
+PASS zarr-v3-uint16
+RUN read-annotations-point
+PASS read-annotations-point
+RUN read-annotations-line
+PASS read-annotations-line
+RUN read-annotations-axis-aligned-bounding-box
+PASS read-annotations-axis-aligned-bounding-box
+RUN read-annotations-ellipsoid
+PASS read-annotations-ellipsoid
+RUN read-annotations-polyline
+PASS read-annotations-polyline
+RUN local-five-geometry-native-roundtrip
+PASS local-five-geometry-native-roundtrip
+RUN touch-create-five-annotation-geometries
+ANNOTATE point
+ANNOTATE line
+ANNOTATE box
+ANNOTATE ellipsoid
+ANNOTATE polyline
+PASS touch-create-five-annotation-geometries
+RUN touch-annotation-cancel-and-delete
+PASS touch-annotation-cancel-and-delete
+RUN touch-annotation-move-and-tap-delete
+PASS touch-annotation-move-and-tap-delete
+RUN all-native-layouts
+PASS all-native-layouts
+RUN real-touch-pan-pinch-and-section-controls
+PASS real-touch-pan-pinch-and-section-controls
+RUN mobile-layer-form
+PASS mobile-layer-form
+RUN native-state-share-and-workspace-import
+PASS native-state-share-and-workspace-import
+RUN layer-rename-reorder-opacity-visibility-removal
+PASS layer-rename-reorder-opacity-visibility-removal
+RUN native-commands-orientation-and-state-download
+PASS native-commands-orientation-and-state-download
+RUN malformed-native-hash-preserves-workspace
+PASS malformed-native-hash-preserves-workspace
+RUN touch-native-keyboard-and-sticky-modifier
+PASS touch-native-keyboard-and-sticky-modifier
+RUN responsive-workspace-panels
+PASS responsive-workspace-panels
+RUN native-controls-remain-reachable
+PASS native-controls-remain-reachable
+RUN unexpected-runtime-errors
+PASS unexpected-runtime-errors
+32/32 full-engine cases passed: /mnt/cup/people/rm5876/src/neuroglancer-mobile/evidence/2026-10-28-spelunker-v4/public-browser-report.json
+PASS Point description, position, and lossless uint64 segment relations
+PASS Committed annotation changes undo and redo
+PASS Numeric geometry editor updates all five native annotation shapes
+PASS Polyline vertices can be added and removed without a keyboard
+PASS Malformed imports, duplicate IDs, and uint64 overflow fail atomically
+PASS Annotation import, undo, redo, and native layer JSON export
+PASS Native schema edits reset unsafe history and typed properties remain editable
+PASS Closing and reopening the annotation sheet preserves active native tools
+PASS state-json-import-export-and-rejected-input
+PASS bookmarks-restore-complete-native-state
+PASS share-link-reopens-native-state
+PASS layer-opacity-order-visibility-remove-undo
+PASS native-panels-and-command-palette
+PASS native-state-editor-download
+PASS native-screenshot-download
+PASS home-preserves-imported-dimensions
+PASS runtime-clean
+PASS native-axes-and-zoom-via-ui
+PASS modifier-capture-excludes-editable-fields
+PASS explicit-native-right-click
+PASS clear-and-close-release-modifiers
+PASS phone-and-landscape-bounds
+PASS no-page-errors
+PASS Ray-marched raw uint8 volume is visible with slice planes and annotation bounds disabled
+PASS Native shader color changes visible volume pixels
+PASS Zero shader alpha makes the volume transparent
+PASS Native volume gain changes opacity independently of slice opacity
+PASS One-finger touch drag rotates the native 3D camera and rendered volume
+PASS Two-finger touch rotation changes orientation within an oblique native cross-section
+PASS spelunker-state-roundtrip
+PASS legacy-fragment-upgrades-timestamp-shader-tags-tools
+PASS legacy-json-import-upgrades-before-restoration
+PASS legacy-named-layer-map-upgrades-without-data-loss
+PASS legacy-remote-state-upgrades-through-url-binding
+PASS invalid-import-retains-spelunker-state
+PASS native-state-editor-upgrade-and-rollback
+PASS url-and-native-editor-restores-stop-section-playback
+PASS native-boolean-summary-and-associated-segment-navigation
+PASS native-segment-color-picker-persists-color
+PASS spelunker-shortcuts-clear-segments-with-modifiers
+PASS graphene-historical-root-request-and-edit-guards
+PASS graphene-latest-timestamp-query-and-native-tools
+PASS touch-proofreading-controls-use-native-tool-state
+PASS touch-proofreading-historical-guards
+PASS native-time-request-disposal-and-rejection
+PASS disabling-graph-subsource-cancels-mobile-tool
+PASS historical-range-endpoint-failures-remain-recoverable
+PASS touch-annotation-review-navigates-linked-segments
+PASS native-cave-share-preserves-path-and-state
+PASS middleauth-missing-terms-popup-and-retry
+PASS runtime-clean
+PASS merge-canvas-taps-submit-once-and-restore-native-selection
+PASS multicut-touch-red-blue-anchors-clear-and-submit
+PASS find-path-canvas-endpoints-native-precision-details-and-clear
+PASS tool-drag-pans-without-placing-endpoints
+PASS touch-toolbar-portrait-landscape-fit-and-targets
+PASS no-page-errors-or-unhandled-synthetic-requests

@@ -1,0 +1,342 @@
+{
+  "startedAt": "2026-10-28T22:06:51.461Z",
+  "url": "https://c10s.pni.princeton.edu/web/neuroglancer-mobile/2026-10-28-spelunker-v4/index.html",
+  "cases": [
+    {
+      "name": "spelunker-state-roundtrip",
+      "passed": true,
+      "elapsedMs": 3055,
+      "details": {
+        "timestamp": 1709296496000,
+        "timestampOwner": [
+          "Segments"
+        ],
+        "swap": false
+      }
+    },
+    {
+      "name": "legacy-fragment-upgrades-timestamp-shader-tags-tools",
+      "passed": true,
+      "elapsedMs": 236,
+      "details": {
+        "timestamp": 1709296496000,
+        "properties": [
+          {
+            "id": "reviewed",
+            "type": "bool"
+          },
+          {
+            "id": "uncertain",
+            "type": "bool"
+          }
+        ],
+        "tool": {
+          "type": "toggleBoolProperty",
+          "property": "reviewed"
+        }
+      }
+    },
+    {
+      "name": "legacy-json-import-upgrades-before-restoration",
+      "passed": true,
+      "elapsedMs": 631,
+      "details": {
+        "timestamp": 1709296496000,
+        "properties": [
+          {
+            "id": "reviewed",
+            "type": "bool"
+          },
+          {
+            "id": "uncertain",
+            "type": "bool"
+          }
+        ],
+        "tool": {
+          "type": "toggleBoolProperty",
+          "property": "reviewed"
+        }
+      }
+    },
+    {
+      "name": "legacy-named-layer-map-upgrades-without-data-loss",
+      "passed": true,
+      "elapsedMs": 230,
+      "details": {
+        "timestamp": 1709296496000,
+        "properties": [
+          {
+            "id": "reviewed",
+            "type": "bool"
+          },
+          {
+            "id": "uncertain",
+            "type": "bool"
+          }
+        ],
+        "tool": {
+          "type": "toggleBoolProperty",
+          "property": "reviewed"
+        }
+      }
+    },
+    {
+      "name": "legacy-remote-state-upgrades-through-url-binding",
+      "passed": true,
+      "elapsedMs": 14,
+      "details": {
+        "timestamp": 1709296496000,
+        "properties": [
+          {
+            "id": "reviewed",
+            "type": "bool"
+          },
+          {
+            "id": "uncertain",
+            "type": "bool"
+          }
+        ],
+        "tool": {
+          "type": "toggleBoolProperty",
+          "property": "reviewed"
+        }
+      }
+    },
+    {
+      "name": "invalid-import-retains-spelunker-state",
+      "passed": true,
+      "elapsedMs": 907
+    },
+    {
+      "name": "native-state-editor-upgrade-and-rollback",
+      "passed": true,
+      "elapsedMs": 1803
+    },
+    {
+      "name": "url-and-native-editor-restores-stop-section-playback",
+      "passed": true,
+      "elapsedMs": 2865
+    },
+    {
+      "name": "native-boolean-summary-and-associated-segment-navigation",
+      "passed": true,
+      "elapsedMs": 1762,
+      "details": {
+        "position": [
+          8,
+          8,
+          4
+        ],
+        "visibleSegments": [
+          "9007199254740993"
+        ]
+      }
+    },
+    {
+      "name": "native-segment-color-picker-persists-color",
+      "passed": true,
+      "elapsedMs": 321,
+      "details": {
+        "id": "1",
+        "color": "#ff00dd"
+      }
+    },
+    {
+      "name": "spelunker-shortcuts-clear-segments-with-modifiers",
+      "passed": true,
+      "elapsedMs": 294,
+      "details": {
+        "keym": "tool-grapheneMergeSegments",
+        "keyc": "tool-grapheneMulticutSegments",
+        "keyf": "tool-grapheneFindPath",
+        "keyx": null,
+        "control+shift+keyx": "clear-segments",
+        "bracketleft": "select-previous",
+        "bracketright": "select-next"
+      }
+    },
+    {
+      "name": "graphene-historical-root-request-and-edit-guards",
+      "passed": true,
+      "elapsedMs": 156,
+      "details": {
+        "rootId": "72057594037927937",
+        "rootRequest": {
+          "path": "/segmentation/api/v1/table/test/node/9007199254740993/root",
+          "query": "?int64_as_str=1&timestamp=1709296496",
+          "method": "GET",
+          "body": null
+        },
+        "writes": 0
+      }
+    },
+    {
+      "name": "graphene-latest-timestamp-query-and-native-tools",
+      "passed": true,
+      "elapsedMs": 26,
+      "details": {
+        "activated": [
+          "grapheneMergeSegments",
+          "grapheneMulticutSegments",
+          "grapheneFindPath"
+        ],
+        "writes": 0
+      }
+    },
+    {
+      "name": "touch-proofreading-controls-use-native-tool-state",
+      "passed": true,
+      "elapsedMs": 278
+    },
+    {
+      "name": "touch-proofreading-historical-guards",
+      "passed": true,
+      "elapsedMs": 1643
+    },
+    {
+      "name": "native-time-request-disposal-and-rejection",
+      "passed": true,
+      "elapsedMs": 778,
+      "details": {
+        "closePanelRetainedTimestamp": 1709296496000,
+        "removedLayerRetainedTimestamp": 1709296496000,
+        "rejectedTimeRestored": "2024-03-01T07:34"
+      }
+    },
+    {
+      "name": "disabling-graph-subsource-cancels-mobile-tool",
+      "passed": true,
+      "elapsedMs": 141
+    },
+    {
+      "name": "historical-range-endpoint-failures-remain-recoverable",
+      "passed": true,
+      "elapsedMs": 405,
+      "details": {
+        "missingEndpointHandled": true,
+        "invalidTimestampHandled": true
+      }
+    },
+    {
+      "name": "touch-annotation-review-navigates-linked-segments",
+      "passed": true,
+      "elapsedMs": 893,
+      "details": {
+        "position": [
+          8,
+          8,
+          4
+        ],
+        "segments": [
+          "9007199254740993"
+        ]
+      }
+    },
+    {
+      "name": "native-cave-share-preserves-path-and-state",
+      "passed": true,
+      "elapsedMs": 1543,
+      "details": {
+        "link": "https://c10s.pni.princeton.edu/web/neuroglancer-mobile/2026-10-28-spelunker-v4/index.html?share-test=retained#!middleauth+https://global.daf-apis.com/nglstate/api/v1/42",
+        "postedLayers": 2,
+        "requests": 1
+      }
+    },
+    {
+      "name": "middleauth-missing-terms-popup-and-retry",
+      "passed": true,
+      "elapsedMs": 1531,
+      "details": {
+        "requests": 2,
+        "termsAccepted": true
+      }
+    },
+    {
+      "name": "runtime-clean",
+      "passed": true,
+      "elapsedMs": 0,
+      "details": {
+        "errors": 0
+      }
+    }
+  ],
+  "errors": [],
+  "limitations": [
+    "Chromium touch emulation with software WebGL; physical devices and Safari not qualified.",
+    "CAVE state sharing, terms acceptance, and Graphene requests use intercepted synthetic services. No real authentication or production writes."
+  ],
+  "browser": "153.0.8010.12",
+  "finishedAt": "2026-10-28T22:07:11.187Z",
+  "passed": true,
+  "scriptAssets": [
+    "https://c10s.pni.princeton.edu/web/neuroglancer-mobile/2026-10-28-spelunker-v4/453.548d234852151630.js",
+    "https://c10s.pni.princeton.edu/web/neuroglancer-mobile/2026-10-28-spelunker-v4/71.1516b789269f70b9.js",
+    "https://c10s.pni.princeton.edu/web/neuroglancer-mobile/2026-10-28-spelunker-v4/948.8a84d339c672688b.js",
+    "https://c10s.pni.princeton.edu/web/neuroglancer-mobile/2026-10-28-spelunker-v4/745.c10b0d6a83253925.js",
+    "https://c10s.pni.princeton.edu/web/neuroglancer-mobile/2026-10-28-spelunker-v4/main.4969fa5d0d6f693f.js"
+  ],
+  "buildVersion": {
+    "version": "1.2.0",
+    "builtAt": "2026-10-28T22:05:15.640Z",
+    "upstream": "48b879ce82c819c614e712d69a7731c4f48e9180",
+    "engine": "spelunker",
+    "repository": "https://github.com/seung-lab/neuroglancer",
+    "stateServers": {
+      "cave": {
+        "url": "middleauth+https://global.daf-apis.com/nglstate/api/v1/post",
+        "default": true
+      }
+    },
+    "segmentListColorWidget": true
+  },
+  "graphRequests": [
+    {
+      "path": "/segmentation/table/test/info",
+      "query": "",
+      "method": "GET",
+      "body": null
+    },
+    {
+      "path": "/segmentation/api/v1/table/test/oldest_timestamp",
+      "query": "",
+      "method": "GET",
+      "body": null
+    },
+    {
+      "path": "/segmentation/api/v1/table/test/node/9007199254740993/root",
+      "query": "?int64_as_str=1&timestamp=1709296496",
+      "method": "GET",
+      "body": null
+    },
+    {
+      "path": "/segmentation/api/v1/table/test/is_latest_roots",
+      "query": "",
+      "method": "POST",
+      "body": "{\"node_ids\":[]}"
+    },
+    {
+      "path": "/segmentation/table/unavailable/info",
+      "query": "",
+      "method": "GET",
+      "body": null
+    },
+    {
+      "path": "/segmentation/api/v1/table/unavailable/oldest_timestamp",
+      "query": "",
+      "method": "GET",
+      "body": null
+    },
+    {
+      "path": "/segmentation/table/invalid-time/info",
+      "query": "",
+      "method": "GET",
+      "body": null
+    },
+    {
+      "path": "/segmentation/api/v1/table/invalid-time/oldest_timestamp",
+      "query": "",
+      "method": "GET",
+      "body": null
+    }
+  ]
+}
