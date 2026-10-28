@@ -43,7 +43,7 @@ function downloadJSON(value, name) {
 }
 
 /** Parse into a temporary upstream source before touching the live source. */
-export function validateAnnotationRows(rows, source) {
+function validateAnnotationRows(rows, source) {
   if (!Array.isArray(rows)) throw new Error('Expected an array of Neuroglancer annotations.');
   if (rows.length > 100000) throw new Error('Import at most 100,000 local annotations at a time.');
   const ids = new Set();
@@ -542,9 +542,4 @@ export function createAnnotationController(viewer, { notify = () => {}, onChange
     },
   };
   return api;
-}
-
-export function mountAnnotations({ viewer, container, notify, onChange }) {
-  const controller = createAnnotationController(viewer, { notify, onChange });
-  controller.mount(container); return controller;
 }

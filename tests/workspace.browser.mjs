@@ -33,7 +33,8 @@ try {
   });
   await test('share-link-reopens-native-state', async () => {
     await reset(); await page.evaluate(() => Object.defineProperty(navigator, 'share', { value: undefined, configurable: true }));
-    await page.locator('#share').tap(); const text = await page.evaluate(() => navigator.clipboard.readText()); assert.ok(text.includes('#!'));
+    await page.evaluate(() => navigator.clipboard.writeText('')); await page.locator('#share').tap();
+    let text = ''; for (const end = Date.now() + 10000; !text.includes('#!') && Date.now() < end; await page.waitForTimeout(100)) text = await page.evaluate(() => navigator.clipboard.readText()); assert.ok(text.includes('#!'));
     const second = await context.newPage(); await second.goto(text); await second.waitForFunction(() => window.neuroglancerMobile?.snapshot().ready);
     assert.deepEqual(await second.evaluate(() => neuroglancerMobile.exportState().position), state.position); await second.close();
   });

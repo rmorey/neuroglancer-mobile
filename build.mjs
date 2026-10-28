@@ -6,6 +6,7 @@ const root = import.meta.dirname;
 const upstream = resolve(root, process.env.NG_ENGINE_DIR || 'vendor/neuroglancer');
 const { rspack, HtmlRspackPlugin, DefinePlugin } = await import(pathToFileURL(join(upstream, 'node_modules/@rspack/core/dist/index.js')));
 const pin = JSON.parse(await readFile(join(root, 'UPSTREAM.json')));
+const { version } = JSON.parse(await readFile(join(root, 'package.json')));
 const stateServers = JSON.parse(await readFile(join(upstream, 'config/state_servers.json')));
 const inputBindings = JSON.parse(await readFile(join(upstream, 'config/custom-keybinds.json')));
 const upstreamConfig = (await import(pathToFileURL(join(upstream, 'rspack.config.ts')))).default;
@@ -42,4 +43,4 @@ await new Promise((resolveBuild, reject) => compiler.run(async (error, stats) =>
 await copyFile(join(root, 'UPSTREAM-LICENSE'), join(root, 'dist/LICENSE.txt'));
 await copyFile(join(root, 'UPSTREAM.json'), join(root, 'dist/upstream.json'));
 await copyFile(join(root, 'icon.svg'), join(root, 'dist/icon.svg'));
-await writeFile(join(root, 'dist/version.json'), JSON.stringify({ version: '1.1.0', builtAt: new Date().toISOString(), upstream: pin.commit, engine: 'spelunker', repository: pin.repository, stateServers, segmentListColorWidget: true }, null, 2));
+await writeFile(join(root, 'dist/version.json'), JSON.stringify({ version, builtAt: new Date().toISOString(), upstream: pin.commit, engine: 'spelunker', repository: pin.repository, stateServers, segmentListColorWidget: true }, null, 2));

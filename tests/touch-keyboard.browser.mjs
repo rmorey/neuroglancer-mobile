@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 import { chromium } from './browser-runtime.mjs';
+import { PROTOTYPE_STATE } from '../state.js';
 const baseURL = process.env.BASE_URL || 'http://127.0.0.1:4174/';
 const fixtureBase = process.env.FIXTURE_BASE_URL?.replace(/\/$/, '') || null;
 const tag = process.env.EVIDENCE_TAG ? `${process.env.EVIDENCE_TAG}-touch-keyboard` : 'touch-keyboard';
@@ -30,7 +31,7 @@ async function send(code) {
 }
 
 try {
-  await page.goto(baseURL, { waitUntil: 'domcontentloaded' });
+  await page.goto(`${baseURL}#!${encodeURIComponent(JSON.stringify(PROTOTYPE_STATE))}`, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => Boolean(window.neuroglancerMobile?.touchKeyboard && window.viewer), null, { timeout: 30000 });
   if (fixtureBase) {
     const manifest = JSON.parse(await readFile(resolve(root, 'tests/fixtures/manifest.json'), 'utf8'));

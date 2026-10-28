@@ -4,6 +4,7 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 const here = dirname(fileURLToPath(import.meta.url)), root = resolve(here, '..');
 import { chromium } from './browser-runtime.mjs';
+import { PROTOTYPE_STATE } from '../state.js';
 const baseURL = process.env.BASE_URL || 'http://127.0.0.1:4174/';
 const fixtureBase = (process.env.FIXTURE_BASE_URL || new URL('/fixtures/', baseURL).href).replace(/\/$/, '');
 const tag = process.env.EVIDENCE_TAG || 'full-local';
@@ -15,7 +16,7 @@ const requested = process.env.CASES?.split(',');
 const report = { startedAt: new Date().toISOString(), baseURL, fixtureBase, upstreamPin: engine.commit, fixtureSourcePin: manifest.upstreamPin,
   device: { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true },
   cases: [], console: [], errors: [], failedRequests: [], responses: [], warnings: [],
-  limitations: ['Chromium mobile emulation on software WebGL; physical iOS/Android and cellular performance untested.', 'WebKit download succeeded but host libraries prevent launch; see browser-engines.json.'] };
+  limitations: ['Chromium mobile emulation on software WebGL; physical iOS/Android and cellular performance untested.', 'WebKit is not tested.'] };
 let phase = 'startup', browser, context, page;
 const snapshot = target => target.evaluate(() => window.neuroglancerMobile.snapshot());
 const exportState = target => target.evaluate(() => window.neuroglancerMobile.exportState());
@@ -114,7 +115,25 @@ try {
   browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || process.env.AGENT_BROWSER_EXECUTABLE_PATH, headless: true,
     args: ['--no-sandbox', '--disable-dev-shm-usage', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
   report.browser = browser.version(); context = await browser.newContext({ ...report.device, permissions: ['clipboard-read', 'clipboard-write'] });
-  page = await context.newPage(); attach(page); await page.goto(baseURL, { waitUntil: 'domcontentloaded' });
+  page = await context.newPage(); attach(page);
+  await test('default-opens-empty', async () => {
+    const requests = []; const record = request => { if (!request.url().startsWith(new URL(baseURL).origin)) requests.push(request.url()); };
+    page.on('request', record);
+    await page.goto(baseURL, { waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(() => Boolean(window.viewer && window.neuroglancerMobile), null, { timeout: 30000 });
+    await page.waitForTimeout(1500); page.off('request', record);
+    const state = await exportState(page);
+    // Stock Neuroglancer behavior: an empty viewer offers the native new-layer source dialog.
+    assert.deepEqual(state.layers, [{ type: 'new', source: '', tab: 'source', name: 'new layer' }]);
+    assert.ok(await page.evaluate(() => window.viewer.selectedLayer.location.visible));
+    assert.deepEqual(requests, [], 'The bare URL must not fetch any data source');
+    for (const id of ['play', 'fit', 'home', 'slice-prev', 'slice-next']) assert.ok(await page.locator(`#${id}`).isDisabled(), `${id} must be disabled without data`);
+    assert.equal(await page.locator('.m-brand-subtitle').textContent(), 'Volume workspace');
+    await page.locator('#layers-toggle').tap(); assert.equal(await page.getByRole('button', { name: 'Full layer controls' }).count(), 0, 'The add-layer placeholder is not a data layer'); await closePanel();
+    await page.screenshot({ path: resolve(evidence, `${tag}-empty-phone.png`) }); return { layout: state.layout };
+  });
+  await page.goto(`${baseURL}#!${encodeURIComponent(JSON.stringify(PROTOTYPE_STATE))}`, { waitUntil: 'domcontentloaded' });
+  await page.reload({ waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => Boolean(window.viewer && window.neuroglancerMobile), null, { timeout: 30000 });
   await test('live-mec-upstream-engine', async () => {
     const current = await ready(); const image = await pixels();
@@ -306,8 +325,12 @@ try {
     const annotations = JSON.parse(await readFile(resolve(here, 'fixtures/editable-annotation-state.json'), 'utf8')).layers[0];
     await restore(baseState([imageLayer('raw-uint16', 'uint16'), { type: 'segmentation', name: 'Labels', source: source('compressed-segmentation-uint64'), segments: ['9007199254740993'], selectedAlpha: 0.35 }, annotations],
       { position: [17, 5, 8], layout: 'xy-3d', crossSectionOrientation: [0, 0, 0.258819045, 0.965925826] }));
-    const before = await exportState(page); await page.locator('#share').tap();
-    const shared = await page.evaluate(() => navigator.clipboard.readText()); assert.ok(shared.includes('#!'));
+    const before = await exportState(page); await page.evaluate(() => navigator.clipboard.writeText(''));
+    await page.locator('#share').tap();
+    // Share writes the clipboard asynchronously; wait for the new link rather than reading a stale one.
+    let shared = '';
+    for (const end = Date.now() + 10000; !shared.includes('#!') && Date.now() < end; await page.waitForTimeout(100)) shared = await page.evaluate(() => navigator.clipboard.readText());
+    assert.ok(shared.includes('#!'));
     const clean = await context.newPage(); attach(clean);
     let restored;
     try {
@@ -322,6 +345,8 @@ try {
   await test('layer-rename-reorder-opacity-visibility-removal', async () => {
     await restore(baseState([imageLayer('raw-uint8'), imageLayer('raw-uint16', 'uint16')], { layout: 'xy' }));
     await page.locator('#layers-toggle').tap();
+    // Range inputs must show the layer's value, not one snapped to the default step of 1.
+    assert.equal(await page.getByLabel('Opacity', { exact: true }).first().inputValue(), '0.5');
     await page.getByLabel('Show raw-uint8', { exact: true }).uncheck();
     await page.getByLabel('Layer name raw-uint8', { exact: true }).fill('Renamed EM');
     await page.getByLabel('Layer name raw-uint8', { exact: true }).press('Tab');

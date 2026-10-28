@@ -96,10 +96,6 @@ body:not(.mobile-panel-open) .m-panel:not([hidden]) { visibility: hidden; pointe
 .m-card > :last-child { margin-bottom: 0; }
 .m-list { display: flex; flex-direction: column; gap: 9px; margin: 0; padding: 0; list-style: none; }
 .m-muted { color: var(--m-muted); font-size: 12px; line-height: 1.5; }
-.m-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; min-width: 0; }
-.m-grid > * { min-width: 0; }
-.m-tabs { display: flex; gap: 5px; overflow-x: auto; padding: 0 0 8px; margin-bottom: 10px; overscroll-behavior-x: contain; }
-.m-tabs > * { flex-shrink: 0; }
 .m-toggle { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; }
 .m-toggle input[type="checkbox"], .m-toggle input[type="radio"] { width: 20px; height: 20px; margin: 0; accent-color: var(--m-accent); }
 .m-toast { position: fixed; z-index: 200; top: calc(var(--m-header-height) + 16px); left: 50%; transform: translateX(-50%); max-width: calc(100vw - 30px); padding: 12px 18px; border: 1px solid #527862; border-radius: 10px; background: #234231; color: #e3f9ea; box-shadow: 0 12px 35px #0006; font-size: 13px; text-align: center; overflow-wrap: anywhere; }

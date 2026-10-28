@@ -6,6 +6,8 @@ import { UrlHashBinding, encodeStateAsFragment } from 'neuroglancer/unstable/ui/
 import { bindDefaultCopyHandler, bindDefaultPasteHandler } from 'neuroglancer/unstable/ui/default_clipboard_handling.js';
 import { registerDefaultCommands } from 'neuroglancer/unstable/ui/default_commands.js';
 import { bindCommandPalette } from 'neuroglancer/unstable/ui/command_palette.js';
+import { bindStateEditor } from 'neuroglancer/unstable/ui/state_editor.js';
+import { bindScreenshotDialog } from 'neuroglancer/unstable/ui/screenshot_menu.js';
 import { bindTitle } from 'neuroglancer/unstable/ui/title.js';
 import { makeLayer, deleteLayer, changeLayerName } from 'neuroglancer/unstable/layer/index.js';
 import { urlSafeParse, bigintToStringJsonReplacer } from 'neuroglancer/unstable/util/json.js';
@@ -45,6 +47,7 @@ async function boot() {
   viewer.registerDisposer(bindTitle(viewer.title));
   bindDefaultCopyHandler(viewer); bindDefaultPasteHandler(viewer);
   registerDefaultCommands(viewer.commandRegistry); bindCommandPalette(viewer);
+  bindStateEditor(viewer); bindScreenshotDialog(viewer);
   let panelName, advanced = false, selectMode = false, playback, mountDisposer, previousTool = 'inspect';
   const touchKeyboard = createTouchKeyboard(viewer, { notify });
   let spelunker;
@@ -88,6 +91,9 @@ async function boot() {
       state.location.restoreState({ ...state.location.value, side: 'bottom', row: 0, col: 0, size: Math.round(innerHeight * 0.52), visible: true });
     } else state.location.visible = true;
   }
+  // Upstream opens an empty viewer with a sourceless `new` layer for its add-layer dialog.
+  function isPlaceholder(managed) { return managed.layer?.type === 'new' && !managed.toJSON()?.source; }
+  function dataLayers() { return viewer.layerManager.managedLayers.filter(managed => !isPlaceholder(managed)); }
   function layerDetails(managed) { viewer.selectedLayer.layer = managed; nativePanel(viewer.selectedLayer); }
   function restoreState(state) {
     validateState(state);
@@ -111,7 +117,7 @@ async function boot() {
     return parsed;
   }
   function range(label, trackable, min = 0, max = 1, step = 0.01) {
-    const control = input(trackable.value, 'range'); control.min = min; control.max = max; control.step = step; control.setAttribute('aria-label', label);
+    const control = input('', 'range'); control.min = min; control.max = max; control.step = step; control.value = trackable.value; control.setAttribute('aria-label', label);
     const value = node('output', 'm-muted', String(trackable.value));
     control.addEventListener('input', guard(() => { trackable.value = Number(control.value); value.textContent = control.value; }));
     return field(label, row(control, value));
@@ -124,6 +130,7 @@ async function boot() {
     content.append(node('p', 'm-muted', 'Each layer uses Neuroglancer’s full data, rendering, and editing controls.'));
     const list = node('div', 'm-list');
     viewer.layerManager.managedLayers.forEach((managed, index) => {
+      if (isPlaceholder(managed)) return;
       const card = node('section', 'm-card'), userLayer = managed.layer;
       const name = input(managed.name); name.setAttribute('aria-label', `Layer name ${managed.name}`);
       name.addEventListener('change', guard(() => changeLayerName(managed, name.value.trim() || managed.name)));
@@ -183,7 +190,9 @@ async function boot() {
   async function importText(text) {
     text = text.trim(); if (!text) throw new Error('Paste a viewer state or URL.');
     if (/^https?:\/\//.test(text)) {
-      const url = new URL(text); if (!url.hash) throw new Error('A viewer URL must include its state fragment.'); location.hash = url.hash; closePanel(); return;
+      const url = new URL(text); if (!url.hash) throw new Error('A viewer URL must include its state fragment.');
+      const legacy = legacyState(url.hash); if (legacy) { restoreState(legacy); closePanel(); return; }
+      location.hash = url.hash; closePanel(); return;
     }
     if (text.startsWith('#!')) { location.hash = text; closePanel(); return; }
     restoreState(urlSafeParse(text)); closePanel(); notify('State imported');
@@ -194,12 +203,12 @@ async function boot() {
     content.append(node('p', '', 'Coordinates are in the current Neuroglancer dimensions. The section axis follows XY, XZ, or YZ when chosen. Imported multidimensional and custom layouts remain native viewer states.'));
     content.append(node('p', '', 'Full controls opens the complete upstream interface, including advanced data sources, custom shaders, transforms, segmentation queries and equivalences, linked views, tool palettes, annotation schemas, and volume rendering.'));
     content.append(node('p', '', 'Workspace → Spelunker tools provides proofreading and annotation-review actions. A Graphene segmentation source is required for merge, split, find path, and historical segmentation. The native Graph tab provides Time and its editing locks. CAVE services enforce account permissions and terms of use.'));
-    content.append(button('All native commands and help', () => nativePanel(viewer.helpPanelState)), button('Reopen test volume', () => { restoreState(structuredClone(DEFAULT_STATE)); closePanel(); }));
+    content.append(button('All native commands and help', () => nativePanel(viewer.helpPanelState)));
   }
   function openPanel(name) {
     closePanel(); panelName = name; $('mobile-panel').hidden = false; document.body.classList.add('mobile-panel-open');
     $('panel-title').textContent = { layers: 'Layers', workspace: 'Workspace', help: 'Help', annotations: 'Annotations', spelunker: 'Spelunker tools' }[name] || name;
-    $(`${name === 'annotations' ? 'annotations' : name}-toggle`)?.setAttribute('aria-expanded', 'true');
+    $(`${name}-toggle`)?.setAttribute('aria-expanded', 'true');
     const content = $('panel-content'); content.replaceChildren();
     if (name === 'layers') renderLayers(content); else if (name === 'workspace') renderWorkspace(content); else if (name === 'help') renderHelp(content); else if (name === 'annotations') mountDisposer = annotations.mount(content); else if (name === 'spelunker') mountDisposer = spelunker.render(content);
   }
@@ -215,7 +224,7 @@ async function boot() {
   function stopPlayback() { clearInterval(playback); playback = undefined; $('play').setAttribute('aria-pressed', 'false'); $('play').setAttribute('aria-label', 'Play sections'); $('play').querySelector('use').setAttribute('href', '#m-i-play'); }
   function updateControls() {
     const space = viewer.coordinateSpace.value, position = viewer.position.value;
-    document.querySelector('.m-brand-subtitle').textContent = viewer.layerManager.managedLayers[0]?.name || 'Volume workspace';
+    document.querySelector('.m-brand-subtitle').textContent = dataLayers()[0]?.name || 'Volume workspace';
     const keys = space.names.join('|');
     if ($('axis-select').dataset.names !== keys && space.rank) {
       const previous = $('axis-select').value; $('axis-select').replaceChildren(); space.names.forEach(name => { const option = node('option', '', name.toUpperCase()); option.value = name; $('axis-select').append(option); });
@@ -225,6 +234,8 @@ async function boot() {
       const element = $(`coord-${name}`); if (document.activeElement !== element) element.value = Number.isFinite(position[i]) ? Number(position[i].toFixed(3)) : 0;
       element.disabled = i >= space.rank; element.previousElementSibling.textContent = space.names[i]?.toUpperCase() || name.toUpperCase();
     }
+    for (const id of ['slice-slider', 'slice-number', 'slice-prev', 'slice-next', 'play', 'fit', 'home']) $(id).disabled = !space.rank;
+    if (!space.rank) stopPlayback();
     const axis = axisIndex(), lo = space.bounds.lowerBounds[axis], hi = space.bounds.upperBounds[axis];
     const slider = $('slice-slider'); slider.min = Number.isFinite(lo) ? Math.floor(lo) : -1000000; slider.max = Number.isFinite(hi) ? Math.ceil(hi) - 1 : 1000000;
     if (document.activeElement !== slider) slider.value = position[axis] || 0;
@@ -241,23 +252,17 @@ async function boot() {
   $('slice-number').onchange = guard(() => moveSection($('slice-number').value));
   $('slice-slider').oninput = guard(() => moveSection($('slice-slider').value));
   $('slice-prev').onclick = guard(() => stepSection(-1)); $('slice-next').onclick = guard(() => stepSection(1));
-  $('play').onclick = () => { if (playback) return stopPlayback(); $('play').setAttribute('aria-pressed', 'true'); $('play').setAttribute('aria-label', 'Pause sections'); $('play').querySelector('use').setAttribute('href', '#m-i-pause'); playback = setInterval(() => { if (!viewer.isReady()) return; const previous = viewer.position.value[axisIndex()]; stepSection(1); if (viewer.position.value[axisIndex()] === previous) stopPlayback(); }, 200); };
+  $('play').onclick = () => { if (playback) return stopPlayback(); $('play').setAttribute('aria-pressed', 'true'); $('play').setAttribute('aria-label', 'Pause sections'); $('play').querySelector('use').setAttribute('href', '#m-i-pause'); playback = setInterval(() => { if (!viewer.isReady()) return; const previous = viewer.position.value[axisIndex()]; try { stepSection(1); } catch (error) { stopPlayback(); notify(error.message); return; } if (viewer.position.value[axisIndex()] === previous) stopPlayback(); }, 200); };
   document.addEventListener('visibilitychange', () => { if (document.hidden) stopPlayback(); });
   $('coordinate-form').onsubmit = event => { event.preventDefault(); guard(() => { const next = new Float32Array(viewer.position.value); ['x', 'y', 'z'].forEach((name, i) => { if (i < next.length) next[i] = finiteNumber($(`coord-${name}`).value, name); }); viewer.position.value = next; })(event); };
   function zoom(factor) { const target = $('layout-select').value === '3d' ? viewer.projectionScale : viewer.crossSectionScale; target.value = Math.max(1e-6, Math.min(1e12, target.value * factor)); }
   $('zoom-in').onclick = () => zoom(0.5); $('zoom-out').onclick = () => zoom(2);
-  $('home').onclick = () => {
-    const state = exportState();
-    if (state.dimensions?.x?.[0] === DEFAULT_STATE.dimensions.x[0] && state.position?.length === 3 && JSON.stringify(state.layers).includes(DEFAULT_STATE.layers[0].source)) {
-      viewer.position.value = new Float32Array(DEFAULT_STATE.position); viewer.crossSectionScale.value = DEFAULT_STATE.crossSectionScale;
-    } else $('fit').click();
-    viewer.crossSectionOrientation.reset();
-  };
+  $('home').onclick = () => { $('fit').click(); $('orientation-reset').click(); };
   $('orientation-reset').onclick = () => { viewer.crossSectionOrientation.reset(); viewer.projectionOrientation.reset(); };
   $('fit').onclick = guard(() => {
     const space = viewer.coordinateSpace.value, bounds = space.bounds, position = new Float32Array(viewer.position.value), extents = [];
     for (const i of viewer.displayDimensionRenderInfo.value.displayDimensionIndices) { const lo = bounds.lowerBounds[i], hi = bounds.upperBounds[i]; if (Number.isFinite(lo) && Number.isFinite(hi)) { position[i] = (lo + hi) / 2; extents.push((hi - lo) * space.scales[i]); } }
-    if (!extents.length) throw new Error('Volume bounds are not available yet.'); viewer.position.value = position;
+    if (!extents.length) throw new Error('The loaded data has no bounds to fit yet.'); viewer.position.value = position;
     const physical = viewer.crossSectionScale.canonicalVoxelPhysicalSize; viewer.crossSectionScale.value = Math.max(...extents) / (Math.min($('neuroglancer-container').clientWidth, $('neuroglancer-container').clientHeight) * physical) * 1.1;
     viewer.projectionScale.value = Math.max(...extents) / physical * 1.5;
   });
@@ -268,6 +273,8 @@ async function boot() {
   const pointers = new Map(); let multiTouch = false;
   $('neuroglancer-container').addEventListener('pointerdown', event => { pointers.set(event.pointerId, { x: event.clientX, y: event.clientY, time: performance.now() }); if (pointers.size > 1) multiTouch = true; }, true);
   $('neuroglancer-container').addEventListener('pointercancel', event => { pointers.delete(event.pointerId); if (!pointers.size) multiTouch = false; }, true);
+  // A release outside the container never reaches it; drop that pointer so later taps are not treated as multi-touch.
+  window.addEventListener('pointerup', event => { if (!$('neuroglancer-container').contains(event.target)) { pointers.delete(event.pointerId); if (!pointers.size) multiTouch = false; } }, true);
   $('neuroglancer-container').addEventListener('pointerup', guard(async event => {
     const start = pointers.get(event.pointerId); pointers.delete(event.pointerId); const multiple = multiTouch; if (!pointers.size) multiTouch = false;
     if (!start || multiple || performance.now() - start.time > 600 || Math.hypot(event.clientX - start.x, event.clientY - start.y) > 8) return;
