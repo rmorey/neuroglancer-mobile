@@ -43,3 +43,14 @@ BASE_URL=${B}index.html FIXTURE_BASE_URL=${B}fixtures EVIDENCE_DIR=evidence/$R E
 ```
 
 Commit the manifest, hash list, rclone logs, public verification and JSON reports with `git add -f evidence/$R/...`, then update this file.
+
+## Link converter
+
+`links/` is a static page that turns any Neuroglancer or Spelunker link into a desktop link and a link to the current mobile release (`MOBILE_RELEASE` in `links/convert.js`; bump it with each release). It lives outside the dated releases, at a stable URL:
+
+```sh
+rclone copy --checksum links nokura:web/neuroglancer-mobile/links
+BASE_URL=https://c10s.pni.princeton.edu/web/neuroglancer-mobile/links/index.html node tests/links.browser.mjs
+```
+
+`?url=<link>` prefills the box. Unit tests: `node --test tests/links.test.mjs`.
