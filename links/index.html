@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Turn any Neuroglancer or Spelunker link into a desktop link and a Neuroglancer Mobile link.">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<title>Neuroglancer Link Converter</title>
+<style>
+  :root {
+    --bg: #f6f7f6; --panel: #ffffff; --text: #18201f; --muted: #5b6765; --line: #d6dcda;
+    --accent: #0f766e; --accent-text: #ffffff; --error: #b42318; --field: #ffffff;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #101817; --panel: #17211f; --text: #e6ecea; --muted: #9aa8a5; --line: #2c3a37;
+      --accent: #2dd4bf; --accent-text: #08201d; --error: #f97066; --field: #0c1312;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101817; --panel: #17211f; --text: #e6ecea; --muted: #9aa8a5; --line: #2c3a37;
+    --accent: #2dd4bf; --accent-text: #08201d; --error: #f97066; --field: #0c1312;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  p.lede { margin: 0 0 20px; color: var(--muted); }
+  label { display: block; font-weight: 600; margin-bottom: 6px; }
+  textarea, select { width: 100%; font: inherit; color: var(--text); background: var(--field);
+    border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+  textarea { min-height: 96px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px; word-break: break-all; }
+  textarea:focus, select:focus, button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .row { display: flex; gap: 12px; align-items: end; margin-top: 12px; flex-wrap: wrap; }
+  .row > div { flex: 1 1 220px; }
+  .error { color: var(--error); margin: 12px 0 0; min-height: 1.5em; }
+  .results { display: grid; gap: 12px; margin-top: 8px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+  .card h2 { font-size: 1rem; margin: 0 0 6px; display: flex; justify-content: space-between; gap: 8px; }
+  .card h2 span { color: var(--muted); font-weight: 400; font-size: .875rem; }
+  .url { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; color: var(--muted);
+    overflow-wrap: anywhere; max-height: 4.6em; overflow: hidden; margin: 0 0 10px; }
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  button, a.button { font: inherit; font-weight: 600; border-radius: 8px; padding: 8px 14px; min-height: 44px;
+    cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid var(--line); background: var(--panel); color: var(--text); }
+  a.button.primary, button.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+  [hidden] { display: none !important; }
+  .note { color: var(--muted); font-size: .875rem; margin-top: 24px; }
+  .note a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Neuroglancer Link Converter</h1>
+  <p class="lede">Paste a Neuroglancer or Spelunker link to get a desktop link and a Neuroglancer Mobile link to the same view.</p>
+
+  <label for="input">Link</label>
+  <textarea id="input" spellcheck="false" autocomplete="off" autocapitalize="off"
+    placeholder="https://spelunker.cave-explorer.org/#!…"></textarea>
+  <div class="row">
+    <div>
+      <label for="desktop-app">Desktop viewer</label>
+      <select id="desktop-app">
+        <option value="auto">Match the pasted link</option>
+        <option value="spelunker">Spelunker</option>
+        <option value="neuroglancer-demo">neuroglancer-demo</option>
+      </select>
+    </div>
+    <button id="paste" type="button">Paste from clipboard</button>
+  </div>
+  <p id="error" class="error" role="alert"></p>
+
+  <section id="results" class="results" hidden aria-live="polite">
+    <div class="card">
+      <h2>Desktop <span id="desktop-label"></span></h2>
+      <p id="desktop-url" class="url"></p>
+      <div class="actions">
+        <a id="desktop-open" class="button" target="_blank" rel="noopener">Open</a>
+        <button type="button" data-copy="desktop">Copy</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Mobile <span id="mobile-label"></span></h2>
+      <p id="mobile-url" class="url"></p>
+      <div class="actions">
+        <a id="mobile-open" class="button" target="_blank" rel="noopener">Open</a>
+        <button type="button" data-copy="mobile">Copy</button>
+      </div>
+    </div>
+    <div class="actions">
+      <button type="button" class="primary" data-copy="both">Copy both</button>
+    </div>
+  </section>
+
+  <p class="note">Conversion happens in your browser; links aren't sent anywhere.
+    Mobile links open the current <a id="mobile-home">Neuroglancer Mobile</a> release.
+    CAVE short links need you to sign in on that page.</p>
+</main>
+<script type="module">
+import { convert, MOBILE_BASE, MOBILE_RELEASE, DESKTOP_APPS } from './convert.js';
+
+const $ = (id) => document.getElementById(id);
+const input = $('input'), app = $('desktop-app'), error = $('error'), results = $('results');
+let current = null;
+$('mobile-home').href = MOBILE_BASE;
+$('mobile-label').textContent = MOBILE_RELEASE;
+
+function render() {
+  current = null;
+  error.textContent = '';
+  results.hidden = true;
+  if (!input.value.trim()) return;
+  try {
+    current = convert(input.value, app.value);
+  } catch (e) {
+    error.textContent = e.message;
+    return;
+  }
+  $('desktop-label').textContent = DESKTOP_APPS[current.desktopApp].label;
+  for (const kind of ['desktop', 'mobile']) {
+    $(`${kind}-url`).textContent = current[kind];
+    $(`${kind}-open`).href = current[kind];
+  }
+  if (!current.hasState) error.textContent = 'This link has no #! view state, so both links open an empty viewer.';
+  results.hidden = false;
+}
+
+async function copy(text, button) {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const area = Object.assign(document.createElement('textarea'), { value: text });
+    document.body.append(area); area.select(); document.execCommand('copy'); area.remove();
+  }
+  const label = button.textContent;
+  button.textContent = 'Copied';
+  setTimeout(() => { button.textContent = label; }, 1200);
+}
+
+document.addEventListener('click', (event) => {
+  const button = event.target.closest('[data-copy]');
+  if (!button || !current) return;
+  const kind = button.dataset.copy;
+  const text = kind === 'both' ? `Desktop: ${current.desktop}\nMobile: ${current.mobile}` : current[kind];
+  copy(text, button);
+});
+
+$('paste').addEventListener('click', async () => {
+  try { input.value = await navigator.clipboard.readText(); render(); }
+  catch { error.textContent = 'This browser blocked clipboard reading; paste into the box instead.'; input.focus(); }
+});
+input.addEventListener('input', render);
+app.addEventListener('change', render);
+
+// ?url=<link> prefills the box, so other pages can link straight to a conversion.
+// The pasted link's own #fragment may follow the query, so take everything after "url=".
+const query = location.href.indexOf('?url=');
+if (query >= 0) {
+  const raw = location.href.slice(query + 5);
+  // Decode only a fully encoded link; an unencoded one keeps its state's own %-escapes.
+  input.value = /^https?%3A/i.test(raw) ? decodeURIComponent(raw) : raw;
+  render();
+}
+</script>
+</body>
+</html>
